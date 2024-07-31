@@ -1,0 +1,178 @@
+\documentclass{article}
+% basic packages
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+% tikz libraries
+\usepackage{tikz}
+\usetikzlibrary{decorations,arrows,shapes,automata,shadows}
+\usetikzlibrary{decorations.markings}
+% crop preview environment
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{0pt}%
+%colors
+\definecolor{plantfill}{rgb}{0.960784,   0.850980,   0.039216}
+\definecolor{plantline}{rgb}{0.77647,   0.53725,   0.00000}
+\definecolor{superfill}{rgb}{0.54510,   0.88235,   0.15686}
+\definecolor{superline}{rgb}{0.227451,   0.486275 ,  0.054902}
+\definecolor{specfill}{rgb}{0.42353,   0.43922,   0.72157}
+\definecolor{specline}{rgb}{0.00000,   0.05098,   0.36471}
+\definecolor{uobsb}{rgb}{0.10980,   0.30196,   0.94510 } 
+\definecolor{uobsg}{rgb}{0.035294,   0.533333,   0.458824 } 
+\definecolor{auto_color}{rgb}{0,0,0}
+\definecolor{bg_color}{rgb}{ 0.98823529,  0.98823529,  0.58039216}
+\definecolor{skyfill}{rgb}{  0.50196,   0.70196,   1.00000}
+\definecolor{skyline}{rgb}{0.00000,   0.23922,   0.75294 }
+\definecolor{yellowfill}{rgb}{1.00000,   0.90196,   0.50196}
+\definecolor{yellowline}{rgb}{1.00000,   0.4,   0}
+
+% special arrow definition
+\newdimen\dima
+\newdimen\dimb
+
+\pgfarrowsdeclare{deslab}{deslab}
+{
+  \dima=0.05pt%
+  \advance\dima by.3\pgflinewidth%
+  \dimb=6\dima\advance\dimb by.5\pgflinewidth%
+  \pgfarrowsleftextend{+-\dimb}
+  \dimb=2\dima\advance\dimb by0.5\pgflinewidth%
+  \pgfarrowsrightextend{+\dimb}
+}
+{
+  \dima=0.05pt%
+  \advance\dima by.3\pgflinewidth%
+  \pgfsetdash{}{-0pt}
+  \pgfsetroundjoin
+  \pgfpathmoveto{\pgfqpoint{2\dima}{0\dima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-.5\dima}{.5\dima}}
+  {\pgfqpoint{-3\dima}{1.5\dima}}
+  {\pgfqpoint{-6\dima}{3.25\dima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-3\dima}{1\dima}}
+  {\pgfqpoint{-3\dima}{-1\dima}}
+  {\pgfqpoint{-6\dima}{-3.25\dima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-3\dima}{-1.5\dima}}
+  {\pgfqpoint{-.5\dima}{-.5\dima}}
+  {\pgfqpoint{2\dima}{0\dima}}
+  \pgfpathclose
+  \pgfusepathqfillstroke
+}
+
+\pgfarrowsdeclare{deslab'}{deslab'}
+{
+  \dima=0.05pt%
+  \advance\dima by.3\pgflinewidth%
+  \pgfarrowsleftextend{+-4\dima}
+  \pgfarrowsrightextend{+6\dima}
+}
+{
+  \dima=0.05pt%
+  \advance\dima by.3\pgflinewidth%
+  \pgfpathmoveto{\pgfqpoint{6\dima}{0\dima}}
+  \pgfpathcurveto
+  {\pgfqpoint{3.5\dima}{.5\dima}}
+  {\pgfqpoint{-1\dima}{1.5\dima}}
+  {\pgfqpoint{-4\dima}{3.75\dima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-1.5\dima}{1\dima}}
+  {\pgfqpoint{-1.5\dima}{-1\dima}}
+  {\pgfqpoint{-4\dima}{-3.75\dima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-1\dima}{-1.5\dima}}
+  {\pgfqpoint{3.5\dima}{-.5\dima}}
+  {\pgfqpoint{6\dima}{0\dima}}
+  \pgfusepathqfill
+}
+
+\pgfarrowsdeclare{init}{init}
+{
+  \dima=0.05pt%
+  \advance\dima by.25\pgflinewidth%
+  \dimb=5.5\dima\advance\dimb by.5\pgflinewidth%
+  \pgfarrowsleftextend{+-\dimb}
+  \dimb=.5\dima\advance\dimb by0.707\pgflinewidth%
+  \pgfarrowsrightextend{+\dimb}
+}
+{
+  \dima=0.05pt%
+  \advance\dima by.25\pgflinewidth%
+  \pgfsetdash{}{+0pt}
+  \pgfsetmiterjoin
+  \pgfpathmoveto{\pgfqpoint{-5.5\dima}{-6\dima}}
+  \pgfpathlineto{\pgfqpoint{0.5\dima}{0\dima}}
+  \pgfpathlineto{\pgfqpoint{-5.5\dima}{6\dima}}
+  \pgfpathclose
+  \pgfusepathqfillstroke
+}
+
+\pgfarrowsdeclare{init'}{init'}
+{
+  \dima=0.05pt%
+  \advance\dima by.25\pgflinewidth%
+  \pgfarrowsleftextend{+-.5\pgflinewidth}
+  \dimb=6\dima\advance\dimb by0.707\pgflinewidth%
+  \pgfarrowsrightextend{+\dimb}
+}
+{
+  \dima=0.05pt%
+  \advance\dima by.25\pgflinewidth%
+  \pgfsetdash{}{+0pt}
+  \pgfsetmiterjoin
+  \pgfpathmoveto{\pgfqpoint{0\dima}{-6\dima}}
+  \pgfpathlineto{\pgfqpoint{6\dima}{0\dima}}
+  \pgfpathlineto{\pgfqpoint{0\dima}{6\dima}}
+  \pgfpathclose
+  \pgfusepathqstroke
+}
+% start here
+\begin{document}
+% setting preview
+\pagestyle{empty}
+\enlargethispage{100cm}
+% font selection
+\fontsize{1pt}{1pt}
+\selectfont
+\tikzset{obs_edge arrow/.style={->, >=deslab, line width =0.075pt}}
+\tikzset{accepting/.style={double distance=0.1pt}}
+
+        
+\tikzset{unobs_edge arrow/.style={->,>=deslab, dash pattern=on 0.1pt off 0.15pt, draw = uobsg,
+line width =0.075pt}}
+
+\tikzset{every initial by arrow/.style=
+{>=init, initial distance=1.7pt,line width=0.1pt, initial where=, fill =orange!40, draw =red!60!black, initial text={}}}
+
+\tikzset{every state/.style={draw= plantline!85, fill= plantfill!76, line width = 0.1, inner sep= 0.25pt, minimum size=0pt, circle,}}
+
+\begin{tikzpicture}
+%%
+\node (s2) at (2.70pt,1.80pt) [draw,ellipse,state,initial,accepting] {$x$};
+  \node (s0) at (19.70pt,1.80pt) [draw,ellipse,state,accepting] {$y$};
+  \node (s1) at (10.70pt,4.80pt) [draw,ellipse,state] {$z$};
+  \draw [,obs_edge arrow] (s0) ..controls (16.01pt,0.97pt) and (14.64pt,0.72pt)  .. (13.40pt,0.60pt) .. controls (11.01pt,0.37pt) and (10.38pt,0.33pt)  .. (8.00pt,0.60pt) .. controls (7.41pt,0.67pt) and (6.79pt,0.78pt)  .. (s2);
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (10.70pt,1.35pt) node {$a$};
+  \draw [,obs_edge arrow] (s0) ..controls (18.77pt,4.51pt) and (19.03pt,5.40pt)  .. (19.70pt,5.40pt) .. controls (20.12pt,5.40pt) and (20.38pt,5.05pt)  .. (s0);
+  \draw (19.70pt,6.15pt) node {$b$};
+  \draw [,obs_edge arrow] (s1) ..controls (9.85pt,7.51pt) and (10.09pt,8.40pt)  .. (10.70pt,8.40pt) .. controls (11.08pt,8.40pt) and (11.32pt,8.05pt)  .. (s1);
+  \draw (10.70pt,9.15pt) node {$b$};
+  \draw [,obs_edge arrow] (s1) ..controls (14.12pt,3.67pt) and (15.26pt,3.28pt)  .. (s0);
+  \draw (15.20pt,4.25pt) node {$a,g$};
+  \draw [,obs_edge arrow] (s2) ..controls (1.85pt,4.51pt) and (2.09pt,5.40pt)  .. (2.70pt,5.40pt) .. controls (3.08pt,5.40pt) and (3.32pt,5.05pt)  .. (s2);
+  \draw (2.70pt,6.15pt) node {$a$};
+  \draw [,obs_edge arrow] (s2) ..controls (5.81pt,2.96pt) and (6.61pt,3.27pt)  .. (s1);
+  \draw (6.70pt,4.05pt) node {$g$};
+%
+
+\end{tikzpicture}
+\newpage
+\end{document}

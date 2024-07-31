@@ -1,0 +1,17 @@
+digraph  {
+rankdir=LR;
+nodesep=0.25;
+ranksep=0.25;
+	s2 [style="state"];
+	s0 [style="state,accepting"];
+	s2 [style="state,accepting"];
+s0 [label=y, style="state,accepting"];
+s1 [label=z, style="state"];
+s2 [label=x, style="state,initial,accepting"];
+s0 -> s2  [key="a", label="a", style="obs_edge arrow"];
+s0 -> s0  [key="b", label="b", style="obs_edge arrow"];
+s1 -> s1  [key="b", label="b", style="obs_edge arrow"];
+s1 -> s0  [key="a,g", label="a,g", style="obs_edge arrow"];
+s2 -> s2  [key="a", label="a", style="obs_edge arrow"];
+s2 -> s1  [key="g", label="g", style="obs_edge arrow"];
+}
