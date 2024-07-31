@@ -10,7 +10,7 @@ import copy
 import inspect
 import pickle
 from random import randrange, shuffle
-from collections import Mapping, MutableMapping
+from collections.abc import Mapping, MutableMapping
 
 from future.backports.misc import (count,
                                    _count,

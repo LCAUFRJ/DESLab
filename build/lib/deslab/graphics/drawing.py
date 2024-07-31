@@ -5,7 +5,7 @@
 #    GNU license.
 
 #import  deslab
-
+import subprocess
 from deslab.src.exceptions import deslabError
 from deslab.src.def_const import *
 import networkx as nx
@@ -677,7 +677,7 @@ def automaton2tikfig(automaton):
     fileObj.close()
     command = '%s -Txdot %s | '%(program, DOTINTERFACE) + 'python dot2tex_deslab.py -ftikz --codeonly --texmode math'
     try:
-        fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=0)
+        fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=subprocess.PIPE)
     except CalledProcessError:
         raise deslabError('I could not create a tex file of the automaton object')
         

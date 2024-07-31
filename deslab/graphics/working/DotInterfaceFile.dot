@@ -2,16 +2,17 @@ digraph  {
 rankdir=LR;
 nodesep=0.25;
 ranksep=0.25;
+	s1 [style="state"];
 	s2 [style="state"];
-	s0 [style="state,accepting"];
-	s2 [style="state,accepting"];
-s0 [label=y, style="state,accepting"];
-s1 [label=z, style="state"];
-s2 [label=x, style="state,initial,accepting"];
-s0 -> s2  [key="a", label="a", style="obs_edge arrow"];
-s0 -> s0  [key="b", label="b", style="obs_edge arrow"];
-s1 -> s1  [key="b", label="b", style="obs_edge arrow"];
-s1 -> s0  [key="a,g", label="a,g", style="obs_edge arrow"];
-s2 -> s2  [key="a", label="a", style="obs_edge arrow"];
-s2 -> s1  [key="g", label="g", style="obs_edge arrow"];
+	s1 [style="state,accepting"];
+s0 [label=q_3, style="state"];
+s1 [label=q_2, style="state,initial,accepting"];
+s2 [label=q_0, style="state,initial"];
+s3 [label=q_1, style="state"];
+s0 -> s3  [key="b_1", label="b_1", style="obs_edge arrow"];
+s1 -> s3  [key="a_1", label="a_1", style="obs_edge arrow"];
+s2 -> s2  [key="a_1", label="a_1", style="obs_edge arrow"];
+s2 -> s1  [key="e_1", label="e_1", style="obs_edge arrow"];
+s3 -> s0  [key="e_1", label="e_1", style="obs_edge arrow"];
+s3 -> s2  [key="b_1", label="b_1", style="obs_edge arrow"];
 }

@@ -6,6 +6,7 @@ import decimal
 import inspect
 import functools
 import collections
+import collections.abc
 from decorator import dispatch_on, contextmanager, decorator
 try:
     from . import documentation as doc
@@ -237,7 +238,7 @@ class TestSingleDispatch(unittest.TestCase):
         self.assertEqual(g(rnd), ("Number got rounded",))
 
     def test_register_abc(self):
-        c = collections
+        c = collections.abc
         d = {"a": "b"}
         l = [1, 2, 3]
         s = set([object(), None])
@@ -348,7 +349,7 @@ class TestSingleDispatch(unittest.TestCase):
         self.assertEqual(g(t), "tuple")
 
     def test_mro_conflicts(self):
-        c = collections
+        c = collections.abc
 
         @singledispatch
         def g(obj):
