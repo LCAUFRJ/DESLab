@@ -2,6 +2,7 @@ __pycache__/
 
 opacidade.py
 debugg.py
+testes.py
 
 *.aux
 *.dat
