@@ -33,3 +33,7 @@ pause
 cd ..\..
 pip install .
 pause
+
+pip install pandas
+
+pip install setuptools
