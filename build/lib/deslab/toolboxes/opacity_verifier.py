@@ -4,6 +4,23 @@ def current_state_op(G, Xs, Xns):
     """
     Return True if the current state opacity exists, otherwise return False.
     Xs represents the secret states, and Xns represents the non-secret states.
+    
+    -------
+    Example
+
+    table = [(a1,'a'),(b1,'b'),(c1,'c'),(d1,'d'),
+             (q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
+    X = [q0,q1,q2,q3,q4]
+    Sigma = [a1,b1,c1,d1]
+    Sigmao = [a1,b1,c1]
+    X0 = [q0]
+    Xm = []
+    T =[(q0,a1,q1),(q1,b1,q2),(q1,d1,q3),(q2,c1,q2),(q2,d1,q4), (q3,b1,q4)]
+    G = fsa(X,Sigma,T,X0,Xm,table,Sigmao, name='$G$') 
+    
+    xs = [q4]
+    xns = [q0,q1,q2,q3]
+    is_current_state_opaque = current_state_op(G, xs, xns)
     """
     
     SigmaOb = list(G.Sigobs)
@@ -40,6 +57,23 @@ def initial_state_opac(G, Xs, Xns):
     """
     Return True if the initial state opacity exists, otherwise return False.
     Xs represents the secret states, and Xns represents the non-secret states.
+    
+    -------
+    Example
+
+    table = [(a1,'a'),(b1,'b'),(c1,'c'),(d1,'d'),
+             (q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
+    X = [q0,q1,q2,q3,q4]
+    Sigma = [a1,b1,c1,d1]
+    Sigmao = [a1,b1,c1]
+    X0 = [q0,q1,q2]
+    Xm = []
+    T =[(q0,a1,q1),(q1,b1,q2),(q1,d1,q3),(q2,c1,q2),(q2,d1,q4), (q3,b1,q4)]
+    G = fsa(X,Sigma,T,X0,Xm,table,Sigmao, name='$G$') 
+    
+    xs = [q2]
+    xns = [q0,q1,q3,q4]
+    is_initial_state_opaque = initial_state_op(G, xs, xns)
     """
     
     SigmaOb = list(G.Sigobs)
@@ -81,6 +115,28 @@ def language_based_opac(G1, G2):
     """
     Return True if the language based opacity exists, otherwise return False.
     G1 represents the secret language, and G2 represents the non-secret language.
+    
+    ------------
+    Example
+    
+    table = [(a1,'a_1'),(b1,'b_1'),(c1,'c_1'),(d1,'d_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
+    X = [q0,q1,q2,q4]
+    Sigma = [a1,b1,d1]
+    SigmaO = [a1,c1,d1]
+    X0 = [q0]
+    Xm = [q4]
+    T =[(q0,a1,q1),(q1,b1,q2),(q2,d1,q4)]
+    G = fsa(X,Sigma,T,X0,Xm,table, SigmaO,name='$G$')
+    
+    table1 = [(a1,'a_1'),(b1,'b_1'),(c1,'c_1'),(d1,'d_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4'),(q5,'q_5')]
+    X1 = [q0,q1,q2,q3,q4]
+    Sigma1 = [a1,b1,c1,d1]
+    X01 = [q0]
+    Xm1 = [q4]
+    T1 =[(q0,a1,q1),(q1,b1,q2),(q1,d1,q3),(q2,c1,q2),(q2,d1,q4), (q3,b1,q4)]
+    G1 = fsa(X1,Sigma1,T1,X01,Xm1,table1,name='$G_1$')
+    
+    is_language_based_opaque = language_based_opac(G, G1)
     """
     
     SigmaOb = list(G1.Sigobs)
@@ -104,6 +160,28 @@ def language_based_opac(G1, G2):
         return False
     
 def initial_final_state_opac(G, xsp, xnsp):
+    """
+    Return True if the initial-final state opacity exists, otherwise return False.
+    xsp represents the secret states pairs, and xnsp represents the non-secret states pairs.
+    
+    ------------
+    Example
+    
+    table = [(a1,'a_1'),(b1,'b_1'),(c1,'c_1'),(d1,'d_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
+    X = [q0,q1,q2,q3]
+    Sigma = [a1,b1,e1]
+    SigmaO = [a1,b1]
+    X0 = [q0,q2]
+    Xm = []
+    T =[(q0,a1,q0),(q0,e1,q2),(q1,b1,q0),(q2,a1,q1),(q1,e1,q3),(q3,b1,q1)]
+    G = fsa(X,Sigma,T,X0,Xm,table, SigmaO,name='$G$')
+    
+    
+    xps = [('q2','q1')]
+    xnps = [('q2','q2')] 
+    initial_final_state_opac(G1,SigmaOb, xps, xnps)
+    """
+    
     m0 = []
     keys = []
     m_aux = []
@@ -119,7 +197,7 @@ def initial_final_state_opac(G, xsp, xnsp):
     states_aux = {}
 
     SigmaOb = list(G.Sigobs)
-    # construindo m0
+    # building m0
     for i in X0:
         aux = (i,i)
         m0.append(aux)
@@ -141,7 +219,7 @@ def initial_final_state_opac(G, xsp, xnsp):
             trans_nob.append(aux)
 
     count = 0
-    # construindo outros m
+    # building others m
     while len(states_i) != 0:
         count = count + 1
         keys = []
@@ -155,15 +233,13 @@ def initial_final_state_opac(G, xsp, xnsp):
                 m_aux = []
                 m_aux1 = []
                 m_existe = False
-
-                # duplas a partir dos estados possiveis ocorrendo o evento observavel
+               
                 for state in states_i[i]:
                     for begin, event, end in trans:
                         if begin == state[1] and e == event:
                             aux = (state[0],end)
                             m_aux.append(aux)
 
-                # duplas juntando os evento observaveis com os nao observaveis
                 while len(m_aux) != 0:
                     m_aux2 = m_aux
                     m_aux = []
@@ -173,13 +249,11 @@ def initial_final_state_opac(G, xsp, xnsp):
                             if dupla[1] == begin:
                                 aux = (dupla[0],end)
                                 m_aux.append(aux)
-
-                # verifica se ja existe esse m               
+             
                 for nome_lista, lista in states.items():
                     if m_aux1 == lista:
                         m_existe = True
                 
-                # cria o m se nao existir
                 if m_existe == False:
                     contador = contador+1
                     nome_lista = f'm_{contador}'
@@ -206,9 +280,7 @@ def initial_final_state_opac(G, xsp, xnsp):
                 estado_ns = True
 
         if estado_s and not estado_ns:
-            #print("Sistema nao possui opacidade de estado inicial-final")
             return False
     if not (estado_s and not estado_ns):
-        #print("Sistema possui opacidade de estado inicial-final")
         return True
         

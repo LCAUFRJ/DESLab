@@ -706,7 +706,7 @@ def size(G):
     return G.Graph.size()    
     
 
-def mtable(G,states = [], events = []):
+def mtable(G,states = [], events = [], gen_csv = False, csv_name = 'new'):
     """
     A DataFrame representing the transition table with states as rows and
     events as columns. The table cells contain the resulting state after 
@@ -719,6 +719,9 @@ def mtable(G,states = [], events = []):
     State2  | None    | State1
 
     If you want a specific order in the table, provide it as an argument
+    
+    Also, if you want to generate a csv from your table, input gen_csv = True,
+    you can choose the name by given a string to csv_name variable.
     
     -------
     Example
@@ -752,5 +755,9 @@ def mtable(G,states = [], events = []):
         table.loc[begin, event] = end
     
     table = table.where(pd.notnull(table), None)
+   
+    if gen_csv:
+        name = csv_name + '.csv'
+        table.to_csv(name)
    
     return table

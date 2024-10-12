@@ -1,6 +1,6 @@
 from deslab import *
 
-
+syms('q0 q1 q2 q3 q4 q5 a1 b1 c1 d1 e1 a b c d e f x y t1 t2')
 #s = list(s) retirar frozenset
 #deepcopy para salvar o estado original e poder alterar o automato
 #lexgraph alphamap(G1) pra chregar
@@ -21,13 +21,14 @@ def auto1():
 
 def auto2():
 
-    table = [(a,'a'),(b,'b'),(c,'c'),(d,'d'),(e,'e'),(q9,'q_9'),(q1,'q_1'),(q4,'q_4'),(q5,'q_5'),(q6,'q_6'),(q7,'q_7'),(q8,'q_8'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
-    X = [q0,q1,q2,q3,q4,q5,q6,q7,q8,q9]
-    Sigma = [a,b,c,d,e]
+    table = [(a,'a'),(b,'b'),(c,'c'),(d,'d'),(e,'e'),(q1,'q_1'),(q4,'q_4'),(q5,'q_5'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
+    X = [q0,q1,q2,q3,q4,q5]
+    Sigma = [a,b,c,d]
+    Sigmao = [a,b,c,d]
     X0 = [q0]
-    Xm = [q9]
-    T =[(q0,e,q0),(q0,d,q1),(q0,a,q5),(q0,b,q8),(q1,a,q2),(q2,b,q3),(q3,c,q4), (q5,b,q6),(q6,c,q7)]
-    G = fsa(X,Sigma,T,[q0,q0],Xm,table,name='$G_2$')
+    Xm = []
+    T =[(q0,d,q1),(q0,a,q4),(q0,b,q5),(q1,a,q2),(q2,b,q3),(q3,c,q0),(q4,b,q5),(q5,c,q0)]
+    G = fsa(X,Sigma,T,X0,Xm,table,Sigobs=Sigmao, name='$G_2$')
     
     return G
 
@@ -56,12 +57,12 @@ def estimator_old():
     return G
 
 ###########################################################
-def verifier_estimator(G, SigmaOb, Xs):
-    e = observer(G, SigmaOb)
+def verifier_estimator(G, Xs):
+    events = G.Sigma
+    G = G.addevent('new_event')
+    G = G.setpar(Sigobs=events)
+    e = observer(G, G.Sigobs)
 
-    #print(e.X)
-    #print(e.X0)
-    #print(e.transitions())
     #montando E_d
     e_d = e
     all_states = e.X
@@ -82,14 +83,11 @@ def verifier_estimator(G, SigmaOb, Xs):
     e_f = e
 
     for x1,ev,x2 in trans:  
-        if (x1 != x2) and (ev in SigmaOb):
-            #e_f = e_f.deletetransition([x1,ev,x2])
+        if (x1 != x2) and (ev in G.Sigobs):
             e_f = e_f.addtransition([x1,f,x2])
     for i in e_f.Sigma:
         evi = i + "i"
-        #print(evi)
         e_f = e_f.addevent(evi)
-    #print(e_f.Sigma)
     for states in all_states:
         s_events = []
         for x1,ev,x2 in trans:  
@@ -100,9 +98,6 @@ def verifier_estimator(G, SigmaOb, Xs):
                 evi = ev + "i"
                 e_f = e_f.addtransition([states,evi,states])
 
-
-    if False:
-        draw(e_d,e_f)
     return (e,e_d,e_f)
 
 ###########################################################
@@ -425,7 +420,7 @@ def string_run_and_projection(aes_c,y):
     
     
 ###################################################
-def all_edit_structure_t(aes_c, y, z):
+def all_edit_structure_t(aes_c):
     if True:
         y0 = list(aes_c.X0)
         trans = aes_c.transitions()
@@ -479,7 +474,7 @@ def all_edit_structure_t(aes_c, y, z):
     for key,state in way_end.items():
         new_y.append(string_run_and_projection(aes_c,state))
     
-    print("new_y", new_y)
+    #print("new_y", new_y)
     fw_dic = {}
     n_way = 0
     if len(new_y)>1:        
@@ -499,7 +494,7 @@ def all_edit_structure_t(aes_c, y, z):
                     aux = [initial,trans,(initial,trans)]
                 else:
                     aux = [initial,trans,(initial[0],trans)]
-                print("aux  1 ",aux)
+                #print("aux  1 ",aux)
                 fw_dic[n_way] = fw_dic[n_way] + [aux]
                 
                 
@@ -507,7 +502,7 @@ def all_edit_structure_t(aes_c, y, z):
                     aux = [(initial,trans),trans2,final]
                 else:
                     aux = [(initial[0],trans),trans2,final]
-                print("aux  2 ",aux)
+                #print("aux  2 ",aux)
                 fw_dic[n_way] = fw_dic[n_way] + [aux]
                 
                 initial = item[2]
@@ -528,7 +523,7 @@ def all_edit_structure_t(aes_c, y, z):
             aux = [(initial,trans),trans2,final]
             fw_dic[0] = fw_dic[0] + [aux]
     
-    return fw_dic#fazer o automato tbm
+    return fw_dic #fazer o automato tbm
      
 
 def verifier_edit_function(runs,xs, x0):
@@ -584,7 +579,7 @@ def verifier_edit_function(runs,xs, x0):
                     map_runs.append(run)
                     used_leaf.append(state)
     else:
-        print("Sem edit function")
+        print("No edit function")
         return fsa()
                     
     for state in used_leaf:
@@ -625,9 +620,13 @@ def verifier_edit_function(runs,xs, x0):
     return edit_function_auto
 
 
-def edit_function(G,xs):
-    G_ob = estimator()
-    e,ed,ef = verifier_estimator(G_ob, Sigma1, Xs)
+def edit_function(G,xs, constrantes = []):
+    """
+    This function receives a automaton G
+    """
+
+    
+    e,ed,ef = verifier_estimator(G, xs)
 
     v,fvo,fvi,fve = verifier_parallel_composition(e,ed,ef)
 
@@ -637,41 +636,22 @@ def edit_function(G,xs):
     vu = fsa(a+b,list(v.Sigma)+e,c+d,list(v.X0),[],name='$Vu$')
     #vu.setgraphic(style = 'rectangle')
 
-    aes_c = all_edit_structure_c_teste(vu,[])
-    runs,new_y = all_edit_structure_t(aes_c, [], [])
-    pp_enforce = verifier_edit_function(runs,xs,v.X0)
+    aes_c = all_edit_structure_c_teste(vu,constrantes)
+    runs= all_edit_structure_t(aes_c)
+    pp_enforce = verifier_edit_function(runs,xs,v.X0)     
     
     return pp_enforce
     
+"""
+g1 = estimator()
+secreto = [q5]
+pp = edit_function(g1,secreto)
+  
+"""
 
-            
-                
-                
-                
-                
-                
-                
-                
-                
-                
-Xs = [q5]
-Sigma1 = [a,b,c,d] #retirar isso
 
-#G = auto2()
+        
 
-G_ob = estimator()
-
-#draw(G_ob)
-e,ed,ef = verifier_estimator(G_ob, Sigma1, Xs)
-#draw(e,ed,ef)
-v,fvo,fvi,fve = verifier_parallel_composition(e,ed,ef)
-#draw(v)
-
-#a = Y, b = Z
-a,b,c,d,e = unfolded_verifier(v,fvo,fvi,fve)
-
-vu = fsa(a+b,list(v.Sigma)+e,c+d,list(v.X0),[],name='$Vu$')
-#vu.setgraphic(style = 'rectangle')
-
-aes_c = all_edit_structure_c_teste(vu,[])
-aes_t = all_edit_structure_t(aes_c, [], [])
+             
+                
+  
