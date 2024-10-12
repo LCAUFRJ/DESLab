@@ -56,4 +56,6 @@ pip install pyparsing==3.1.4
 
 pip install setuptools==75.1.0
 
+pip install portion==2.5.0
+
 pip install .

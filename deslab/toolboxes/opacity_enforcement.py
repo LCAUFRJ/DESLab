@@ -992,7 +992,7 @@ def SetGamma(auto,state_list):
     return set(event_set)
 
 
-def CSOUenfSHUFFLING(auto,D,Xs,Xu)
+def CSOUenfSHUFFLING(auto,D,Xs,Xu):
     
     ## busca de scc em G
     ## remove estados secretos de Gint

@@ -91,6 +91,7 @@ def coac(automaton):
         return fsa()    
     auto.X = Xcoac
     auto.Xm = Xm
+    auto.X0 = X0 & Xcoac
     return auto
 
 def trim(automaton):
