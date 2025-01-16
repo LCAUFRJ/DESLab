@@ -12,24 +12,22 @@ def current_state_op(G, Xs, Xns):
              (q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
     X = [q0,q1,q2,q3,q4]
     Sigma = [a1,b1,c1,d1]
-    Sigmao = [a1,b1,c1]
+    Sigmao = [a1,c1,d1]
     X0 = [q0]
     Xm = []
     T =[(q0,a1,q1),(q1,b1,q2),(q1,d1,q3),(q2,c1,q2),(q2,d1,q4), (q3,b1,q4)]
     G = fsa(X,Sigma,T,X0,Xm,table,Sigmao, name='$G$') 
     
-    xs = [q4]
-    xns = [q0,q1,q2,q3]
+    xs = [q3]
+    xns = [q4]
     is_current_state_opaque = current_state_op(G, xs, xns)
     """
     
     SigmaOb = list(G.Sigobs)
     
     G2 = observer(G, SigmaOb)
-    draw(G2)
     
     all_states = G2.X
-    
     
     for  states in all_states:
         secret_state = False
@@ -40,9 +38,7 @@ def current_state_op(G, Xs, Xns):
             if x in Xns:
                 nonsecret_state = True
         if secret_state and not nonsecret_state:
-            #print("Opacidade de estado corrente não existe")
             return False
-    #print("Opacidade de estado corrente existe")
     return True
 
 def inverse_automaton(G):
@@ -73,7 +69,7 @@ def initial_state_opac(G, Xs, Xns):
     
     xs = [q2]
     xns = [q0,q1,q3,q4]
-    is_initial_state_opaque = initial_state_op(G, xs, xns)
+    is_initial_state_opaque = initial_state_opac(G, xs, xns)
     """
     
     SigmaOb = list(G.Sigobs)
@@ -83,17 +79,16 @@ def initial_state_opac(G, Xs, Xns):
         G1 = G.setpar(Xm = G.X)
         G2 = inverse_automaton(G)
         G3 = observer(G2, SigmaOb)
-        draw(G,G1,G2,G3)
+        #draw(G,G1,G2,G3)
     else:
         if not any(x in list(G.X0) for x in Xs):
-            print("The secret state is not part of the initial states.")
             return False
         else:
             allow_states = list(G.X0)
             G1 = G.setpar(X0 = G.X, Xm = G.X0)
             G2 = inverse_automaton(G1)
             G3 = observer(G2, SigmaOb)
-            draw(G, G1, G2, G3)
+            #draw(G, G1, G2, G3)
 
     
     marked_states = G3.Xm
@@ -106,9 +101,7 @@ def initial_state_opac(G, Xs, Xns):
             if (x in Xns) and (x in allow_states):
                 nonsecret_state = True
         if secret_state and not nonsecret_state:
-            #print("Opacidade de estado inicial não existe")
             return False
-    #print("Opacidade de estado inicial existe")
     return True
     
 def language_based_opac(G1, G2):
@@ -147,16 +140,14 @@ def language_based_opac(G1, G2):
     G1oc = complement(G1o)
     G4 = coac(product(G3, G1oc))
 
-    draw(G1, G2)
-    draw(G1o,G2o)
-    draw(G3, G1oc, G4)
+    #draw(G1, G2)
+    #draw(G1o,G2o)
+    #draw(G3, G1oc, G4)
     
     if G3.X != []:
         if langdiff(G4,G1o).X != []:
-            #print("Opacidade de linguagem existe")
             return True
     else:
-        #print("Opacidade de linguagem não existe")
         return False
     
 def initial_final_state_opac(G, xsp, xnsp):

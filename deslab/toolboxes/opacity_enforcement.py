@@ -662,12 +662,12 @@ def edit_function(G,xs, constrantes = []):
     
     return pp_enforce
     
-
+"""
 g1 = estimator()
 secreto = [q5]
 pp = edit_function(g1,secreto)
 draw(pp)
-
+"""
 ######################################################################################################################
 
 def autoD(auto,OC,Elo=[],loi=0):
@@ -1198,7 +1198,7 @@ def shuffle_deletion_function(G, SD, SigmaD, Xs, Xu):
 
     GaSD_new,V,H,Huc = CSOUenfSHUFFLING(G,D,Xs,Xu)
     
-    
+"""
 syms('0 1 2 3 4 5 6 7 8 9 10 11 a b c d su')
 
 table = [(0,'0'),(1,'1'),(2,'2'),(3,'3'),(4,'4'),(5,'5'),(6,'6'),(7,'7'),(8,'8'),(9,'9'),(10,'10'),(11,'11'),(a,'a'),(b,'b'),(c,'c'),(d,'d'),(su,r'\sigma_u')]
@@ -1221,5 +1221,5 @@ print('------------------------------------')
 
 GaSD_new,V2,H2,Huc2 = CSOUenfSHUFFLING(G2,D2,Xs2,Xu2)
              
-                
+"""
   

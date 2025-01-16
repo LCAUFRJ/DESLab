@@ -976,9 +976,6 @@ def ti_simplify(Gt):
     renamed_gt = tia(g.renamestates(mapping),renmu)
     return renamed_gt
 
-
-
-
 #Complementar de um TIA
 def ti_complement(Gt):
     #desmarcar todos os estados e adicionar estado dump xd
@@ -1239,7 +1236,6 @@ def ti_label_obf(self, other):
     tiprod = tia(prodnondet,mu_p)
     return tiprod
 
-    
     
 
 
