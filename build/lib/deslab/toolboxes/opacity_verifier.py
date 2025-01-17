@@ -26,7 +26,7 @@ def current_state_op(G, Xs, Xns):
     SigmaOb = list(G.Sigobs)
     
     G2 = observer(G, SigmaOb)
-    
+    draw(G2, 'figure')
     all_states = G2.X
     
     for  states in all_states:
