@@ -100,7 +100,7 @@ class graphic:
 
 # TEMPLATES FOR FIGURES
 
-FIGURE_TEMPLATE=r"""\documentclass{article}
+FIGURE_TEMPLATE=r"""\documentclass{beamer}
 % basic packages
 \usepackage{xcolor}
 \usepackage[utf8]{inputenc}
@@ -114,9 +114,9 @@ FIGURE_TEMPLATE=r"""\documentclass{article}
 \usetikzlibrary{decorations,arrows,shapes,automata,shadows}
 \usetikzlibrary{decorations.markings}
 % crop preview environment
-\usepackage[active,tightpage]{preview}
-\PreviewEnvironment{tikzpicture}
-\setlength\PreviewBorder{0pt}%
+%\usepackage[active,tightpage]{preview}
+%\PreviewEnvironment{tikzpicture}
+%\setlength\PreviewBorder{0pt}%
 %colors
 \definecolor{plantfill}{rgb}{0.960784,   0.850980,   0.039216}
 \definecolor{plantline}{rgb}{0.77647,   0.53725,   0.00000}
@@ -741,6 +741,7 @@ line width =0.075pt}}
         
         
     elif style == 'figurecolor':
+        size = determine_size(tikz_code, nodes)
         init_tex = r"""        
 \tikzset{unobs_edge arrow/.style={->,>=deslab, dash pattern=on 0.1pt off 0.15pt, draw = %s,
 line width =0.075pt}}
@@ -750,13 +751,17 @@ line width =0.075pt}}
 
 \tikzset{every state/.style={draw= %s, fill= %s, line width = 0.1, %s}}
 
+\begin{frame}
+\begin{center}
+\resizebox{%s}{!}{
 \begin{tikzpicture}
 """ % ('uobsg',  initpos, 'orange!40', 'red!60!black',
-         strLineColor, strFillColor,  state_ly)
-        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}\n\\newpage\n'
+         strLineColor, strFillColor,  state_ly, size)
+        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}} \n \\end{center} \n \\end{frame}'
         
         
     elif style == 'figure':
+        size = determine_size(tikz_code, nodes)
         init_tex = r"""        
 \tikzset{unobs_edge arrow/.style={->, >=deslab, dash pattern=on 0.1pt off 0.15pt, draw = %s,
 line width =0.075pt }}
@@ -766,10 +771,13 @@ line width =0.075pt }}
 
 \tikzset{every state/.style={draw= %s, fill= %s, line width = 0.1, %s}}
 
+\begin{frame}
+\begin{center}
+\resizebox{%s}{!}{
 \begin{tikzpicture}
 """ % ('black', initpos, 'black', 'black',
-         'black', 'white',   state_ly)
-        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}\n\\newpage\n'
+         'black', 'white',   state_ly, size)
+        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}} \n \\end{center} \n \\end{frame}'
                 
     else :
         raise deslabError('style %s is not defined yet'%style)
