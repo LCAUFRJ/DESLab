@@ -44,15 +44,15 @@ def ti_draw(*Gt):
         Gtia = tia[0]
         new_sigobs = []
         new_sig = []
-        for trans in transitions(tia[0]):
-            ev_mu = trans[1]+P.to_string(tia[1][trans])
-            if trans[1] in tia[0].Sigobs:
-                new_sigobs.append(ev_mu)
-            new_sig.append(ev_mu)
-            Gtia = Gtia.renametransition([trans[0],(trans[1],ev_mu),trans[2]])
-        Gtia = Gtia.setpar(Sigobs = new_sigobs)
-        draw(Gtia,style)
-
+        if not isitempty(Gtia):
+            for trans in transitions(tia[0]):
+                ev_mu = trans[1]+P.to_string(tia[1][trans])
+                if trans[1] in tia[0].Sigobs:
+                    new_sigobs.append(ev_mu)
+                new_sig.append(ev_mu)
+                Gtia = Gtia.renametransition([trans[0],(trans[1],ev_mu),trans[2]])
+            Gtia = Gtia.setpar(Sigobs = new_sigobs)
+            draw(Gtia,style)
     return
 
 ## Função para determinar o Caminho Detectável de um estado em Gt

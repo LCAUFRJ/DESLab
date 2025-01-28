@@ -730,7 +730,7 @@ def mtable(G,states = [], events = [], gen_csv = False, csv_name = 'new'):
     X = [q1,q2]
     Sigma = [a1,b1]
     X0 = [q1]
-    Xm = [q1,q3]
+    Xm = [q1,q2]
     T =[(q1,b1,q1),(q1,a1,q2),(q2,b1,q1)]
     G1 = fsa(X,Sigma,T,X0,Xm)
     table = mtable(G1)

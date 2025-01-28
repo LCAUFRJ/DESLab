@@ -26,7 +26,8 @@ def current_state_op(G, Xs, Xns):
     SigmaOb = list(G.Sigobs)
     
     G2 = observer(G, SigmaOb)
-    draw(G2, 'figure')
+    
+    
     all_states = G2.X
     
     for  states in all_states:
@@ -79,7 +80,6 @@ def initial_state_opac(G, Xs, Xns):
         G1 = G.setpar(Xm = G.X)
         G2 = inverse_automaton(G)
         G3 = observer(G2, SigmaOb)
-        #draw(G,G1,G2,G3)
     else:
         if not any(x in list(G.X0) for x in Xs):
             return False
@@ -88,9 +88,8 @@ def initial_state_opac(G, Xs, Xns):
             G1 = G.setpar(X0 = G.X, Xm = G.X0)
             G2 = inverse_automaton(G1)
             G3 = observer(G2, SigmaOb)
-            #draw(G, G1, G2, G3)
 
-    
+
     marked_states = G3.Xm
     for states in marked_states:
         secret_state = False
@@ -104,10 +103,11 @@ def initial_state_opac(G, Xs, Xns):
             return False
     return True
     
-def language_based_opac(G1, G2):
+def language_based_opac(G1, G2, SigmaO):
     """
     Return True if the language based opacity exists, otherwise return False.
-    G1 represents the secret language, and G2 represents the non-secret language.
+    G1 represents the secret language, G2 represents the non-secret language and 
+    SigmaO represents the observable events.
     
     ------------
     Example
@@ -115,7 +115,7 @@ def language_based_opac(G1, G2):
     table = [(a1,'a_1'),(b1,'b_1'),(c1,'c_1'),(d1,'d_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
     X = [q0,q1,q2,q4]
     Sigma = [a1,b1,d1]
-    SigmaO = [a1,c1,d1]
+    SigmaO = [a1,d1]
     X0 = [q0]
     Xm = [q4]
     T =[(q0,a1,q1),(q1,b1,q2),(q2,d1,q4)]
@@ -129,10 +129,11 @@ def language_based_opac(G1, G2):
     T1 =[(q0,a1,q1),(q1,b1,q2),(q1,d1,q3),(q2,c1,q2),(q2,d1,q4), (q3,b1,q4)]
     G1 = fsa(X1,Sigma1,T1,X01,Xm1,table1,name='$G_1$')
     
-    is_language_based_opaque = language_based_opac(G, G1)
+    sigma_o = [a1, c1, d1]
+    is_language_based_opaque = language_based_opac(G, G1, sigma_o)
     """
     
-    SigmaOb = list(G1.Sigobs)
+    SigmaOb = SigmaO
     
     G1o = observer(G1, SigmaOb)
     G2o = observer(G2, SigmaOb)
@@ -170,7 +171,7 @@ def initial_final_state_opac(G, xsp, xnsp):
     
     xps = [('q2','q1')]
     xnps = [('q2','q2')] 
-    initial_final_state_opac(G1,SigmaOb, xps, xnps)
+    print(initial_final_state_opac(G, xps, xnps))
     """
     
     m0 = []
