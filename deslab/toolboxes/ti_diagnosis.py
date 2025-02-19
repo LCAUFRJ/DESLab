@@ -3,7 +3,7 @@
 # Orientador: João Carlos Basilio
 # Coorientador: Gustavo Sousa Viana
 
-from ti_deslab import *
+from deslab import *
 
 syms('N Y')
 
@@ -156,7 +156,7 @@ def rename_glt(Glt,ret = 'GRF'):
         glt_rf = tia(glrf,Murf)
         return glt_rf
 
-## Em Construção: Descompacta os estados renomeados de Gdtr,
+## Descompacta os estados renomeados de Gdtr,
 ## renomeando os estados e criando ou substituindo as transições.
 def unpack_gdtr(Gdt_renamed):
 

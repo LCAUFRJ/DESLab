@@ -289,19 +289,10 @@ def unfolded_verifier(v,fvo,fvi,fve):
     return final_y,final_z,f_zy,f_yz, list(set(vu_sigma))
     
     
-#####################################################
-def all_edit_structure_c(vu,y,z,f_zy,f_yz, edit_const):
-    vum = vu.setpar(Xm = y)
-    for state in edit_const:
-        vum = vum.deletestate(state)
-    vum = trim(vum)
-    
-    aes_c = supCont(vum,vu)
-
 ##################
 #Faz o que eh descrito no 
 # artigo de outra forma
-def all_edit_structure_c_teste(vu, edit_const):
+def all_edit_structure_c(vu, edit_const):
     
     trans_old = []
     vum = vu
@@ -543,28 +534,31 @@ def verifier_edit_function(runs,xs, x0):
         run = runs[num]
         secret_run = False
         for state in run:
-            if state[0][0][1] in xs:
-                secret_run = True
+            if isinstance(state[0][0],tuple):
+                if state[0][0][1] in xs:
+                    secret_run = True
     
         if secret_run:
             aux = 0
             for state in run:
-                if state[0][0][1] in xs:
-                    if aux:
-                        ck.append(aux[0][0])
-                else:
-                    aux = state
+                if isinstance(state[0][0],tuple):
+                    if state[0][0][1] in xs:
+                        if aux:
+                            ck.append(aux[0][0])
+                    else:
+                        aux = state
             cj.append(run[-1][-1])
         else:
             ck.append(run[-1][-1])
         
     for j in range(len(cj)):
         for k in range(len(ck)):
-            if len(cj[j][1][0])<=len(ck[k][1][0]):
-                ck_aux = ck[k][1][0][-len(cj[j][1][0]):]
-                if ck_aux == cj[j][1][0]:
-                    cj_final.append(cj[j])
-                    ck_final.append(ck[k])
+            if isinstance(cj[j][1],tuple) and isinstance(ck[k][1],tuple):
+                if len(cj[j][1][0])<=len(ck[k][1][0]):
+                    ck_aux = ck[k][1][0][-len(cj[j][1][0]):]
+                    if ck_aux == cj[j][1][0]:
+                        cj_final.append(cj[j])
+                        ck_final.append(ck[k])
             
     #remove duplicates cj_final e ck_final
     cj_final = list(set(cj_final))
@@ -656,7 +650,7 @@ def edit_function(G,xs, constrantes = []):
     vu = fsa(a+b,list(v.Sigma)+e,c+d,list(v.X0),[],name='$Vu$')
     #vu.setgraphic(style = 'rectangle')
 
-    aes_c = all_edit_structure_c_teste(vu,constrantes)
+    aes_c = all_edit_structure_c(vu,constrantes)
     runs= all_edit_structure_t(aes_c)
     pp_enforce = verifier_edit_function(runs,xs,v.X0)     
     
@@ -1185,7 +1179,7 @@ def CSOUenfSHUFFLING(auto,D,Xs,Xu):
     
     return GaSD,V,Hcopy,H
 
-def shuffle_deletion_function(G, SD, SigmaD, Xs, Xu):
+def cso_shuffle_deletion_function(G, SD, SigmaD, Xs, Xu):
     """
     This function returns an automaton that shuffle and/or delete events to 
     enforce current state opacity to an automaton G, where SD is the maximum time 
@@ -1197,7 +1191,8 @@ def shuffle_deletion_function(G, SD, SigmaD, Xs, Xu):
     D,Gint,Gshf,GaSD,Er = createGaSD(G,Xs,SD,SigmaD)
 
     GaSD_new,V,H,Huc = CSOUenfSHUFFLING(G,D,Xs,Xu)
-    
+    return Huc
+
 """
 syms('0 1 2 3 4 5 6 7 8 9 10 11 a b c d su')
 

@@ -746,6 +746,27 @@ def unpack_gdtr(Gdt_renamed):
 
     return gdt_unp
 
+
+def ext_ti_product(self,other):
+    G1, Mu1 = self
+    G2, Mu2 = other    
+    sigp_1 = G1.Sigma - G2.Sigma
+    sigp_2 = G2.Sigma - G1.Sigma
+    
+    for sig in sigp_2:
+        for x in G1.X:
+            G1 = G1.addselfloop(x,sig)
+            Mu1[(x,sig,x)] = P.closedopen(0,P.inf)
+    for sig in sigp_1:
+        for x in G2.X:
+            G2 = G2.addselfloop(x,sig)
+            Mu2[(x,sig,x)] = P.closedopen(0,P.inf)
+
+    extprod = ti_product(tia(G1,Mu1),tia(G2,Mu2))
+    extprod[0].setgraphic(style='observer')
+    return extprod
+
+
 ## Realiza a operação produto entre dois TIA
 def ti_product(self, other):
     
