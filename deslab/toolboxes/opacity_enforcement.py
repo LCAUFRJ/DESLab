@@ -620,7 +620,7 @@ def edit_function(G,xs, constrantes = []):
     This function returns an automaton that inserts events to 
     enforce current state opacity to an automaton G, where xs are
     the secret states and constrantes are not allowed states combinations.
-    If it returns an empty automaton means the enfocement can be done.
+    If it returns an empty automaton means the enforcement can not be done.
     
     -------
     Example

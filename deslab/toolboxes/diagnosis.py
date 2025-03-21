@@ -3,7 +3,7 @@
 #    Joao Carlos Basilio <basilio@poli.ufrj.br>
 #    BSD license.
 from deslab import *
-
+from networkx import selfloop_edges
 
 def diagnoser(G,failevent,ret="GD"):
     X = ['N','Y']
@@ -12,6 +12,7 @@ def diagnoser(G,failevent,ret="GD"):
     Xm = []
     T =[('N',failevent,'Y'), ('Y',failevent,'Y')]
     Al = fsa(X,Sigma,T,X0,Xm,name='$A_l$',Sigobs=[])
+
     if ret=="GL":
         gl=G//Al
         gl.graphic = graphic('observer')
@@ -112,7 +113,7 @@ def is_diagnosable(G,failevent,sigmas=[],method=''):
         for comp in strconncomps(G):
             # matrix with the size of the number of Gdi's used in Gscc (Gd1//Gd2//...//Gl)
             diag=[0]*(len(list(G.X)[0])-1)
-            if len(comp)>1 or list(comp)[0] in G.Graph.nodes_with_selfloops():
+            if len(comp)>1 or list(comp)[0] in selfloop_edges(G.Graph):
                 for state in comp:
                     check = N_Y(state)
                     diag = [diag[i]+check[i] for i in range(len(diag))]
@@ -127,7 +128,7 @@ def is_diagnosable(G,failevent,sigmas=[],method=''):
         #Search for the strong components of the automaton
         for comp in strconncomps(G):
             for state in comp:
-                if ( len(comp)>1 or state in G.Graph.nodes_with_selfloops() )and state[-1].count('Y')>0:
+                if ( len(comp)>1 or state in selfloop_edges(G.Graph) )and state[-1].count('Y')>0:
                      events = list(G.Gamma(state) & sigma)
                      for event in events:
                          if G.delta(state,event) in comp:

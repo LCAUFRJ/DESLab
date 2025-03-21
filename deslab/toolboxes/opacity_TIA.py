@@ -1518,6 +1518,120 @@ def label_draw(*Gt):
             draw(fsa())
     return
 
+def TLBO(Gst,Gnst):
+
+    #projection of Gst
+    Gstproj = ti_proj(Gst)
+    Gstproj[0].name = 'Proj(Gst)'
+
+
+    #projection of Gnst 
+    Gnstproj = ti_proj(Gnst)
+    Gnstproj[0].name = 'Proj(Gnst)'
+
+    #observer of Gnst 
+    Gnsto = ti_equi_det(Gnstproj)
+    Gnsto[0].name = 'Obs(Gnst)'
+    
+
+    #complement of Obs(Gnst) 
+    Gnstocomp = ti_complement(Gnsto)
+    Gnstocomp[0].name = 'Comp(Obs(Gnst))'
+
+    #G Obfuscated 
+    Gobf = ti_label_obf(Gstproj,Gnstproj)
+
+    Gobf = tia(coac(Gobf[0]),Gobf[1])
+
+    #G Revealed
+    Grev = ti_label_rev(Gstproj,Gnsto)
+
+    Grev = tia(coac(Grev[0]),Grev[1])
+
+
+    if isitempty(Gobf[0]):
+        decision = 'Not opaque'
+        return decision
+        sys.exit()
+    
+    if isitempty(Grev[0]):
+        decision = 'TISO'
+        return decision
+        sys.exit()
+
+
+    #PART 1 VERIFICATION
+    #Gerar automato verificador com os labels nas transicoes
+    Gv,dict_v, dict_state = verifierTLBO(Gst[0],Gnst[0],Gobf,Grev)
+
+    Gv_label = tia(Gv,dict_v)
+    dict_original = deepcopy(Gv_label[1])
+    Gv_label_original = tia(Gv_label[0],dict_original)
+    
+    #PART 2 VERIFICATION
+    #Decidir um label para cada transicao do verificador
+    #Seguindo as regras que definem isso
+
+    for t in Gv.transitions():
+        labels = dict_v[t]
+        l_obf = labels[0]
+        l_rev = labels[1]
+
+        #1
+        if 'empty' in l_rev: 
+            dict_v[t] = 'co'
+            
+        #2    
+        if 'empty' in l_obf: 
+            dict_v[t] = 'cr'  
+
+        #todos parciais
+
+        
+        if ('empty' not in l_obf) and (('pr' in l_rev) or ('cr' in l_rev)): #and ('co' not in l_rev) and ('po' not in l_rev):
+            dict_v[t] = 'por'
+
+        if ('empty' not in l_obf) and (('po' in l_rev) or ('co' in l_rev)) and ('cr' not in l_rev) and ('pr' not in l_rev):
+            dict_v[t] = 'co'
+
+
+
+    #PART 3
+    #decisao da verificacao
+    flag_obf = 0
+    flag_part = 0
+    flag_rev = 0
+
+    Gobf_strings = Gv
+    Gpart_strings = Gv
+
+    for t in Gv.transitions():
+        if dict_v[t] == 'cr':
+            flag_rev = 1
+        
+        if (dict_v[t] != 'co'):
+            Gobf_strings = Gobf_strings.deletetransition(t)
+
+        if (dict_v[t] == 'cr'):
+            Gpart_strings = Gpart_strings.deletetransition(t)
+
+    if not isitempty(trim(Gobf_strings)):
+        flag_obf = 1
+
+    for t in Gpart_strings.transitions():
+        if dict_v[t] == 'por':
+            flag_part = 1
+
+    if (flag_part == 1)and (flag_rev == 0):
+        decision =  'TDSO'
+
+    if (flag_obf == 1) and (flag_rev == 1):
+        decision = 'TIWO'
+
+    if (flag_obf == 0) and (flag_part == 1) and (flag_rev == 1):
+        decision = 'TDWO'
+
+    return decision
 
 
 
