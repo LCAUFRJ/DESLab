@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass{beamer}
 % basic packages
 \usepackage{xcolor}
 \usepackage[utf8]{inputenc}
@@ -11,10 +11,6 @@
 \usepackage{tikz}
 \usetikzlibrary{decorations,arrows,shapes,automata,shadows}
 \usetikzlibrary{decorations.markings}
-% crop preview environment
-\usepackage[active,tightpage]{preview}
-\PreviewEnvironment{tikzpicture}
-\setlength\PreviewBorder{0pt}%
 %colors
 \definecolor{plantfill}{rgb}{0.960784,   0.850980,   0.039216}
 \definecolor{plantline}{rgb}{0.77647,   0.53725,   0.00000}
@@ -30,6 +26,14 @@
 \definecolor{skyline}{rgb}{0.00000,   0.23922,   0.75294 }
 \definecolor{yellowfill}{rgb}{1.00000,   0.90196,   0.50196}
 \definecolor{yellowline}{rgb}{1.00000,   0.4,   0}
+
+% beamer data
+\author{LCA--Lab. de Controle e Automac\~ao}
+\title{DESLab Software Package}
+\usetheme{Madrid}
+\usecolortheme{seagull}
+\setbeamercolor{normal text}{bg=bg_color!30}
+\usefonttheme{professionalfonts}
 
 % special arrow definition
 \newdimen\dima
@@ -132,47 +136,51 @@
   \pgfpathclose
   \pgfusepathqstroke
 }
-% start here
+
+
+
 \begin{document}
-% setting preview
-\pagestyle{empty}
-\enlargethispage{100cm}
-% font selection
+%font selection
 \fontsize{1pt}{1pt}
 \selectfont
 \tikzset{obs_edge arrow/.style={->, >=deslab, line width =0.075pt}}
 \tikzset{accepting/.style={double distance=0.1pt}}
 
         
-\tikzset{unobs_edge arrow/.style={->,>=deslab, dash pattern=on 0.1pt off 0.15pt, draw = uobsg,
+\tikzset{unobs_edge arrow/.style={->, >=deslab, dash pattern=on 0.1pt off 0.15pt, draw = uobsg,
 line width =0.075pt}}
 
 \tikzset{every initial by arrow/.style=
-{>=init, initial distance=1.7pt,line width=0.1pt, initial where=, fill =orange!40, draw =red!60!black, initial text={}}}
+{>=init, initial distance=1.7pt,line width=0.125pt, initial where=, fill =yellow!60, draw =green!30!black, initial text={}}}
 
 \tikzset{every state/.style={draw= plantline!85, fill= plantfill!76, line width = 0.1, inner sep= 0.25pt, minimum size=0pt, circle,}}
-
+        
+\begin{frame}       
+\frametitle{\textcolor{auto_color}{\textcolor{white}{\framebox{Fig. \; 0.0 }\quad} $G_3$}}
+\begin{center}
+\resizebox{100mm}{!}{
 \begin{tikzpicture}
 %%
-\node (s2) at (2.70pt,1.80pt) [draw,ellipse,state,initial,accepting] {$x$};
-  \node (s0) at (19.70pt,1.80pt) [draw,ellipse,state,accepting] {$y$};
-  \node (s1) at (10.70pt,4.80pt) [draw,ellipse,state] {$z$};
-  \draw [,obs_edge arrow] (s0) ..controls (16.01pt,0.97pt) and (14.64pt,0.72pt)  .. (13.40pt,0.60pt) .. controls (11.01pt,0.37pt) and (10.38pt,0.33pt)  .. (8.00pt,0.60pt) .. controls (7.41pt,0.67pt) and (6.79pt,0.78pt)  .. (s2);
+\node (s1) at (2.70pt,2.80pt) [draw,ellipse,state,initial,accepting] {$q_2$};
+  \node (s2) at (21.50pt,1.80pt) [draw,ellipse,state,initial] {$q_0$};
+  \node (s0) at (21.50pt,11.00pt) [draw,ellipse,state] {$q_3$};
+  \node (s3) at (12.10pt,6.80pt) [draw,ellipse,state] {$q_1$};
+  \draw [,obs_edge arrow] (s0) ..controls (19.43pt,8.90pt) and (18.69pt,8.29pt)  .. (17.90pt,7.90pt) .. controls (17.26pt,7.58pt) and (16.53pt,7.36pt)  .. (s3);
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (10.70pt,1.35pt) node {$a$};
-  \draw [,obs_edge arrow] (s0) ..controls (18.77pt,4.51pt) and (19.03pt,5.40pt)  .. (19.70pt,5.40pt) .. controls (20.12pt,5.40pt) and (20.38pt,5.05pt)  .. (s0);
-  \draw (19.70pt,6.15pt) node {$b$};
-  \draw [,obs_edge arrow] (s1) ..controls (9.85pt,7.51pt) and (10.09pt,8.40pt)  .. (10.70pt,8.40pt) .. controls (11.08pt,8.40pt) and (11.32pt,8.05pt)  .. (s1);
-  \draw (10.70pt,9.15pt) node {$b$};
-  \draw [,obs_edge arrow] (s1) ..controls (14.12pt,3.67pt) and (15.26pt,3.28pt)  .. (s0);
-  \draw (15.20pt,4.25pt) node {$a,g$};
-  \draw [,obs_edge arrow] (s2) ..controls (1.85pt,4.51pt) and (2.09pt,5.40pt)  .. (2.70pt,5.40pt) .. controls (3.08pt,5.40pt) and (3.32pt,5.05pt)  .. (s2);
-  \draw (2.70pt,6.15pt) node {$a$};
-  \draw [,obs_edge arrow] (s2) ..controls (5.81pt,2.96pt) and (6.61pt,3.27pt)  .. (s1);
-  \draw (6.70pt,4.05pt) node {$g$};
+  \draw (16.80pt,8.65pt) node {$b_1$};
+  \draw [,obs_edge arrow] (s1) ..controls (6.18pt,4.27pt) and (7.61pt,4.89pt)  .. (s3);
+  \draw (7.40pt,5.95pt) node {$a_1$};
+  \draw [,obs_edge arrow] (s2) ..controls (20.52pt,4.51pt) and (20.80pt,5.40pt)  .. (21.50pt,5.40pt) .. controls (21.94pt,5.40pt) and (22.21pt,5.05pt)  .. (s2);
+  \draw (21.50pt,6.15pt) node {$a_1$};
+  \draw [,obs_edge arrow] (s2) ..controls (15.57pt,2.11pt) and (10.08pt,2.41pt)  .. (s1);
+  \draw (12.10pt,3.15pt) node {$e_1$};
+  \draw [,obs_edge arrow] (s3) ..controls (14.39pt,8.63pt) and (15.05pt,9.08pt)  .. (15.70pt,9.40pt) .. controls (16.39pt,9.74pt) and (17.17pt,10.02pt)  .. (s0);
+  \draw (16.80pt,10.95pt) node {$e_1$};
+  \draw [,obs_edge arrow] (s3) ..controls (15.48pt,5.02pt) and (17.08pt,4.15pt)  .. (s2);
+  \draw (16.80pt,5.55pt) node {$b_1$};
 %
 
-\end{tikzpicture}
-\newpage
-\end{document}
+\end{tikzpicture}} 
+ \end{center} 
+ \end{frame}\end{document}

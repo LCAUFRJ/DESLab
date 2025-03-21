@@ -91,6 +91,7 @@ def coac(automaton):
         return fsa()    
     auto.X = Xcoac
     auto.Xm = Xm
+    auto.X0 = X0 & Xcoac
     return auto
 
 def trim(automaton):
@@ -349,16 +350,16 @@ def union(self, other, dfa = True):
     """  
     # imports from modules  
     from deslab.src.automatadefs import fsa
-    from deslab.src.comparison import isitempty  
+    from deslab.src.comparison import isitempty,isitemptymarked  
 
     # G1 marks an empty language and G2 does not
-    if isitempty(self) and not isitempty(other):
+    if isitemptymarked(self) and not isitemptymarked(other):
         return other
     # G1 and G2 marks empty languages
-    elif isitempty(self) and isitempty(other):
+    elif isitemptymarked(self) and isitemptymarked(other):
         return fsa()
     # G1 marks a nonempty language and G2 do.
-    elif not isitempty(self) and isitempty(other):
+    elif not isitemptymarked(self) and isitemptymarked(other):
         return self
 
     unionaut=~(trim((~self)&(~other)))

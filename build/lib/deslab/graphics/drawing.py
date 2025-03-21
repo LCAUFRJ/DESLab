@@ -5,7 +5,7 @@
 #    GNU license.
 
 #import  deslab
-
+import subprocess
 from deslab.src.exceptions import deslabError
 from deslab.src.def_const import *
 import networkx as nx
@@ -491,8 +491,8 @@ def create_digraph(self) :
             events_unobs = [tex(i)+',' for i in sorted(list(set(events) & Siguobs))]              
             events_obs   = ''.join(events_obs).rstrip(',')         
             events_unobs = ''.join(events_unobs).rstrip(',')                  
-            source_dig   = Graph.node[source]['label']
-            target_dig   = Graph.node[target]['label']
+            source_dig   = Graph._node[source]['label']
+            target_dig   = Graph._node[target]['label']
             
             if  events_obs != '':                       
                 if  os.name == 'nt':   # in the case if windows system               
@@ -667,9 +667,9 @@ def automaton2tikfig(automaton):
     
     preamble = 'rankdir=%s;\nnodesep=%s;\nranksep=%s;\n'%(direction, str(nodesep), str(ranksep))
     for x_i in automaton.X0 :
-        preamble += '\t'+graph.node[x_i]['label']+' '+'[style="state"];\n'
+        preamble += '\t'+graph._node[x_i]['label']+' '+'[style="state"];\n'
     for x_m in automaton.Xm :
-        preamble += '\t'+graph.node[x_m]['label']+' '+'[style="state,accepting"];\n'     
+        preamble += '\t'+graph._node[x_m]['label']+' '+'[style="state,accepting"];\n'     
     auto_dotfile = dot_init[0:11] + preamble + dot_init[11:]# texcommands
     file = os.path.join(dir_path[WORKING], DOTINTERFACE)      
     fileObj = open(file, 'w')
@@ -677,7 +677,7 @@ def automaton2tikfig(automaton):
     fileObj.close()
     command = '%s -Txdot %s | '%(program, DOTINTERFACE) + 'python dot2tex_deslab.py -ftikz --codeonly --texmode math'
     try:
-        fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=0)
+        fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=subprocess.PIPE)
     except CalledProcessError:
         raise deslabError('I could not create a tex file of the automaton object')
         

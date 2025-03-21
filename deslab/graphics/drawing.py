@@ -5,7 +5,7 @@
 #    GNU license.
 
 #import  deslab
-
+import subprocess
 from deslab.src.exceptions import deslabError
 from deslab.src.def_const import *
 import networkx as nx
@@ -100,7 +100,7 @@ class graphic:
 
 # TEMPLATES FOR FIGURES
 
-FIGURE_TEMPLATE=r"""\documentclass{article}
+FIGURE_TEMPLATE=r"""\documentclass{beamer}
 % basic packages
 \usepackage{xcolor}
 \usepackage[utf8]{inputenc}
@@ -114,9 +114,9 @@ FIGURE_TEMPLATE=r"""\documentclass{article}
 \usetikzlibrary{decorations,arrows,shapes,automata,shadows}
 \usetikzlibrary{decorations.markings}
 % crop preview environment
-\usepackage[active,tightpage]{preview}
-\PreviewEnvironment{tikzpicture}
-\setlength\PreviewBorder{0pt}%
+%\usepackage[active,tightpage]{preview}
+%\PreviewEnvironment{tikzpicture}
+%\setlength\PreviewBorder{0pt}%
 %colors
 \definecolor{plantfill}{rgb}{0.960784,   0.850980,   0.039216}
 \definecolor{plantline}{rgb}{0.77647,   0.53725,   0.00000}
@@ -491,8 +491,8 @@ def create_digraph(self) :
             events_unobs = [tex(i)+',' for i in sorted(list(set(events) & Siguobs))]              
             events_obs   = ''.join(events_obs).rstrip(',')         
             events_unobs = ''.join(events_unobs).rstrip(',')                  
-            source_dig   = Graph.node[source]['label']
-            target_dig   = Graph.node[target]['label']
+            source_dig   = Graph._node[source]['label']
+            target_dig   = Graph._node[target]['label']
             
             if  events_obs != '':                       
                 if  os.name == 'nt':   # in the case if windows system               
@@ -667,9 +667,9 @@ def automaton2tikfig(automaton):
     
     preamble = 'rankdir=%s;\nnodesep=%s;\nranksep=%s;\n'%(direction, str(nodesep), str(ranksep))
     for x_i in automaton.X0 :
-        preamble += '\t'+graph.node[x_i]['label']+' '+'[style="state"];\n'
+        preamble += '\t'+graph._node[x_i]['label']+' '+'[style="state"];\n'
     for x_m in automaton.Xm :
-        preamble += '\t'+graph.node[x_m]['label']+' '+'[style="state,accepting"];\n'     
+        preamble += '\t'+graph._node[x_m]['label']+' '+'[style="state,accepting"];\n'     
     auto_dotfile = dot_init[0:11] + preamble + dot_init[11:]# texcommands
     file = os.path.join(dir_path[WORKING], DOTINTERFACE)      
     fileObj = open(file, 'w')
@@ -677,7 +677,7 @@ def automaton2tikfig(automaton):
     fileObj.close()
     command = '%s -Txdot %s | '%(program, DOTINTERFACE) + 'python dot2tex_deslab.py -ftikz --codeonly --texmode math'
     try:
-        fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=0)
+        fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=subprocess.PIPE)
     except CalledProcessError:
         raise deslabError('I could not create a tex file of the automaton object')
         
@@ -741,6 +741,7 @@ line width =0.075pt}}
         
         
     elif style == 'figurecolor':
+        size = determine_size(tikz_code, nodes)
         init_tex = r"""        
 \tikzset{unobs_edge arrow/.style={->,>=deslab, dash pattern=on 0.1pt off 0.15pt, draw = %s,
 line width =0.075pt}}
@@ -750,13 +751,17 @@ line width =0.075pt}}
 
 \tikzset{every state/.style={draw= %s, fill= %s, line width = 0.1, %s}}
 
+\begin{frame}
+\begin{center}
+\resizebox{%s}{!}{
 \begin{tikzpicture}
 """ % ('uobsg',  initpos, 'orange!40', 'red!60!black',
-         strLineColor, strFillColor,  state_ly)
-        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}\n\\newpage\n'
+         strLineColor, strFillColor,  state_ly, size)
+        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}} \n \\end{center} \n \\end{frame}'
         
         
     elif style == 'figure':
+        size = determine_size(tikz_code, nodes)
         init_tex = r"""        
 \tikzset{unobs_edge arrow/.style={->, >=deslab, dash pattern=on 0.1pt off 0.15pt, draw = %s,
 line width =0.075pt }}
@@ -766,10 +771,13 @@ line width =0.075pt }}
 
 \tikzset{every state/.style={draw= %s, fill= %s, line width = 0.1, %s}}
 
+\begin{frame}
+\begin{center}
+\resizebox{%s}{!}{
 \begin{tikzpicture}
 """ % ('black', initpos, 'black', 'black',
-         'black', 'white',   state_ly)
-        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}\n\\newpage\n'
+         'black', 'white',   state_ly, size)
+        figure_texcode = init_tex + tikz_code + '\\end{tikzpicture}} \n \\end{center} \n \\end{frame}'
                 
     else :
         raise deslabError('style %s is not defined yet'%style)

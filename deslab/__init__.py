@@ -59,6 +59,10 @@ import deslab.toolboxes
 from deslab.toolboxes.diagnosis import *
 from deslab.toolboxes.supervisory import *
 #from deslab.toolboxes.supervisory import *
+from deslab.toolboxes.opacity_verifier import *
+from deslab.toolboxes.opacity_enforcement import *
+from deslab.toolboxes.opacity_TIA import *
+from deslab.toolboxes.ti_diagnosis import *
 
 # adding readwrite
 import deslab.readwrite

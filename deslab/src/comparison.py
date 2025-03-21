@@ -14,6 +14,25 @@ import warnings
 
 def isitempty(self):
     
+    """This function determines whether or not the automaton G is empty.
+    
+    Example
+    -------
+    syms('a b c x1 x2 x3 x4')
+    X1=[x1,x2,x3,x4]
+    Sigma=[a,b,c] 
+    T=[(x1,a,x2),(x2,b,x3),(x3,c,x4)]
+    X0,Xm=[x1],[x2]
+    H1=fsa(X1,Sigma,T,X0,Xm,name='$G_1$')
+    print isitempty(H1) # returns the booleans value of the emptiness test    
+    """
+    if self.empty:
+        return True
+    else:
+        return False
+
+def isitemptymarked(self):
+    
     """This function determines whether or not the language marked by automaton
     G is empty. It uses a DFS for searching marked states that are reachable
     from the initial state.
@@ -33,7 +52,7 @@ def isitempty(self):
     else:
         auto = ac(self)
         return auto.Xm == EMPTYSET
-                
+
 def issublanguage(self, other):
     """ This funtion determines whether or not the language marked by
     automaton G1 is contained in the language marked by

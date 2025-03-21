@@ -8,6 +8,7 @@ automaton object.
 #    Joao Carlos Basilio <basilio@poli.ufrj.br>
 #    GNU license.
 import networkx as nx
+import pandas as pd
 from deslab.src.def_const import *
 import copy
 from deslab.src.exceptions import*
@@ -705,4 +706,58 @@ def size(G):
     return G.Graph.size()    
     
 
+def mtable(G,states = [], events = [], gen_csv = False, csv_name = 'new'):
+    """
+    A DataFrame representing the transition table with states as rows and
+    events as columns. The table cells contain the resulting state after 
+    applying the event to the current state, or None if no transition exists.
+
+            | Event1  | Event2
+
+    State1  | State2  | None
+
+    State2  | None    | State1
+
+    If you want a specific order in the table, provide it as an argument
     
+    Also, if you want to generate a csv from your table, input gen_csv = True,
+    you can choose the name by given a string to csv_name variable.
+    
+    -------
+    Example
+    
+    
+    X = [q1,q2]
+    Sigma = [a1,b1]
+    X0 = [q1]
+    Xm = [q1,q3]
+    T =[(q1,b1,q1),(q1,a1,q2),(q2,b1,q1)]
+    G1 = fsa(X,Sigma,T,X0,Xm)
+    table = mtable(G1)
+    print(table)
+    
+            | a1      | b1
+
+    q1      | q2      | q1
+
+    q2      | None    | q1    
+    """
+    if not states:
+        states = list(G.X)
+    if not events:
+        events = list(G.Sigma)
+    
+    trans = list(G.transitions())
+
+    table = pd.DataFrame(index=states, columns=events) 
+    
+    for begin, event, end in trans:
+        table.loc[begin, event] = end
+    
+    table = table.where(pd.notnull(table), None)
+   
+    if gen_csv:
+        name = csv_name + '.csv'
+        table.to_csv(name)
+   
+    return table

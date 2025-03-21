@@ -43,7 +43,6 @@ id_re_with_port = re.compile('^.*:([^"]+|[^"]*\"[^"]*\"[^"]*)$')
 id_re_dbl_quoted = re.compile('^\".*\"$', re.S)
 id_re_html = re.compile('^<<.*>>$', re.S)
 
-
 log = logging.getLogger("dot2tex")
 
 def needs_quotes( s ):
@@ -649,8 +648,8 @@ class DotDataParser(object):
 
 
 #from UserDict import DictMixin
-import collections
-DictMixin = collections.MutableMapping
+import collections.abc
+DictMixin = collections.abc.MutableMapping
 
 class OrderedDict(DictMixin):
 

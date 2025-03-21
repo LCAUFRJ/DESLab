@@ -1,35 +1,22 @@
-msiexec /i programas\graphviz-2.28.0.msi
-pause
+@REM msiexec /i programas\graphviz-2.28.0.msi
+@REM pause
 
-cd modulos/fado-python3-master
-python setup.py install
-pause
+pip install decorator==5.5.1
 
-cd ..
-cd future-0.16.0
-python setup.py install
-pause
+pip install fado==2.2.0
 
-cd ..
-cd decorator-4.3.0
-python setup.py install
-pause
+pip install future==1.0.0
 
-cd ..
-cd networkx-2.1
-python setup.py install
-pause
+pip install networkx=2.8.8
 
-cd ..
-cd pydot-1.2.4
-python setup.py install
-pause
+pip install pandas==2.2.3
 
-cd ..
-cd pyparsing-2.2.0
-python setup.py install
-pause
+pip install pydot==3.0.1
 
-cd..\..
-python setup.py install --user
-pause
+pip install pyparsing==3.1.4
+
+pip install setuptools==75.1.0
+
+pip install portion==2.5.0
+
+pip install .

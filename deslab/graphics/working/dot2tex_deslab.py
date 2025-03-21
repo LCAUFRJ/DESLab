@@ -2853,6 +2853,7 @@ def main(run_as_module=False,dotdata=None,options=None):
         deslab.graphics.working.dotparsing.pyparsing_version)
     log.info('dot2tex called with: %s' % sys.argv)
     log.info('Program started in %s' % os.getcwd())
+    
     if not run_as_module:
         if options.printversion:
             #print options.hest
