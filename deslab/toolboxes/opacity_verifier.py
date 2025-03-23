@@ -7,7 +7,7 @@ def current_state_op(G, Xs, Xns):
     
     -------
     Example
-
+    syms('q0 q1 q2 q3 q4 a1 b1 c1 d1')
     table = [(a1,'a'),(b1,'b'),(c1,'c'),(d1,'d'),
              (q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
     X = [q0,q1,q2,q3,q4]
@@ -57,7 +57,7 @@ def initial_state_opac(G, Xs, Xns):
     
     -------
     Example
-
+    syms('q0 q1 q2 q3 q4 a1 b1 c1 d1')
     table = [(a1,'a'),(b1,'b'),(c1,'c'),(d1,'d'),
              (q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
     X = [q0,q1,q2,q3,q4]
@@ -111,7 +111,7 @@ def language_based_opac(G1, G2, SigmaO):
     
     ------------
     Example
-    
+    syms('q0 q1 q2 q3 q4 a1 b1 c1 d1')
     table = [(a1,'a_1'),(b1,'b_1'),(c1,'c_1'),(d1,'d_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
     X = [q0,q1,q2,q4]
     Sigma = [a1,b1,d1]
@@ -158,7 +158,7 @@ def initial_final_state_opac(G, xsp, xnsp):
     
     ------------
     Example
-    
+    syms('q0 q1 q2 q3 q4 a1 b1 c1 d1 e1')
     table = [(a1,'a_1'),(b1,'b_1'),(c1,'c_1'),(d1,'d_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0'),(q4,'q_4')]
     X = [q0,q1,q2,q3]
     Sigma = [a1,b1,e1]

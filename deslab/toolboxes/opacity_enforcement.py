@@ -8,56 +8,9 @@ syms('q0 q1 q2 q3 q4 q5 a1 b1 c1 d1 e1 a b c d e f x y t1 t2 su')
 #olhar variaveis
 #os estados em Y ou Z tem que ser ajustados, olhar o final do que tem no artigo
 
-def auto1():
 
-    table = [(a1,'a_1'),(b1,'b_1'),(e1,'e_1'),(q1,'q_1'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
-    X = [q0,q1,q2,q3, q4, q5]
-    Sigma = [a1,b1,e1]
-    X0 = [q0]
-    Xm = [q5]
-    T =[(q0,a1,q1),(q0,e1,q2),(q1,b1,q3),(q3,a1,q3),(q2,b1,q4), (q4,a1,q3)]
-    G = fsa(X,Sigma,T,X0,Xm,table,name='$G_1$')
-    
-    return G
 
-def auto2():
 
-    table = [(a,'a'),(b,'b'),(c,'c'),(d,'d'),(e,'e'),(q1,'q_1'),(q4,'q_4'),(q5,'q_5'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
-    X = [q0,q1,q2,q3,q4,q5]
-    Sigma = [a,b,c,d]
-    Sigmao = [a,b,c,d]
-    X0 = [q0]
-    Xm = []
-    T =[(q0,d,q1),(q0,a,q4),(q0,b,q5),(q1,a,q2),(q2,b,q3),(q3,c,q0),(q4,b,q5),(q5,c,q0)]
-    G = fsa(X,Sigma,T,X0,Xm,table,Sigobs=Sigmao, name='$G_2$')
-    
-    return G
-
-def estimator():
-
-    table = [(a,'a'),(b,'b'),(c,'c'),(d,'d'),(e,'e'),(q1,'q_1'),(q4,'q_4'),(q5,'q_5'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
-    X = [q0,q1,q2,q3,q4,q5]
-    Sigma = [a,b,c,d,e]
-    X0 = [q0]
-    Xm = []
-    T =[(q0,d,q1),(q0,a,q4),(q0,b,q5),(q1,a,q2),(q2,b,q3),(q3,c,q0),(q4,b,q5),(q5,c,q0)]
-    G = fsa(X,Sigma,T,X0,Xm,table,name='$G_2$')
-    
-    return G
-
-def estimator_old():
-
-    table = [(a,'a'),(b,'b'),(c,'c'),(d,'d'),(e,'e'),(q1,'q_1'),(q4,'q_4'),(q5,'q_5'),(q6,'q_6'),(q7,'q_7'),(q8,'q_8'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
-    X = [q0,q1,q2,q3,q4,q5,q6,q7,q8]
-    Sigma = [a,b,c,d,e]
-    X0 = [q0]
-    Xm = []
-    T =[(q0,e,q0),(q0,d,q1),(q0,a,q5),(q0,b,q8),(q1,a,q2),(q2,b,q3),(q3,c,q4), (q5,b,q6),(q6,c,q7)]
-    G = fsa(X,Sigma,T,[q0,q0],Xm,table,name='$G_2$')
-    
-    return G
-
-###########################################################
 def verifier_estimator(G, Xs):
     events = G.Sigma
     G = G.addevent('new_event')
@@ -101,7 +54,6 @@ def verifier_estimator(G, Xs):
 
     return (e,e_d,e_f)
 
-###########################################################
 def verifier_parallel_composition(e,e_d, e_f):
     
     new_states = []
@@ -190,8 +142,6 @@ def verifier_parallel_composition(e,e_d, e_f):
     #draw(v)
     return (v,v_fvo,v_fvi,v_fve)
 
-
-##########################################################################
 def unfolded_verifier(v,fvo,fvi,fve):
     if True:
         y = []
@@ -288,10 +238,6 @@ def unfolded_verifier(v,fvo,fvi,fve):
 
     return final_y,final_z,f_zy,f_yz, list(set(vu_sigma))
     
-    
-##################
-#Faz o que eh descrito no 
-# artigo de outra forma
 def all_edit_structure_c(vu, edit_const):
     
     trans_old = []
@@ -327,7 +273,6 @@ def all_edit_structure_c(vu, edit_const):
         
     return vum
 
-###############################
 def string_run_and_projection(aes_c,y):
     all_states = aes_c.X
     y0 = list(aes_c.X0)
@@ -410,8 +355,6 @@ def string_run_and_projection(aes_c,y):
     
     return trans_ordenadas
     
-    
-###################################################
 def all_edit_structure_t(aes_c):
     if True:
         y0 = list(aes_c.X0)
@@ -517,7 +460,6 @@ def all_edit_structure_t(aes_c):
     
     return fw_dic #fazer o automato tbm
      
-
 def verifier_edit_function(runs,xs, x0):
     secret_run = False
     cj = []
@@ -614,7 +556,7 @@ def verifier_edit_function(runs,xs, x0):
     
     return edit_function_auto
 
-
+#########################################
 def edit_function(G,xs, constrantes = []):
     """
     This function returns an automaton that inserts events to 
@@ -624,7 +566,7 @@ def edit_function(G,xs, constrantes = []):
     
     -------
     Example
-    
+    syms('q0 q1 q2 q3 q4 a b c d e')
     table = [(a,'a'),(b,'b'),(c,'c'),(d,'d'),(e,'e'),(q1,'q_1'),(q4,'q_4'),(q5,'q_5'),(q2,'q_2'),(q3,'q_3'),(q0,'q_0')]
     X = [q0,q1,q2,q3,q4,q5]
     Sigma = [a,b,c,d]
@@ -656,12 +598,6 @@ def edit_function(G,xs, constrantes = []):
     
     return pp_enforce
     
-"""
-g1 = estimator()
-secreto = [q5]
-pp = edit_function(g1,secreto)
-draw(pp)
-"""
 ######################################################################################################################
 
 def autoD(auto,OC,Elo=[],loi=0):
@@ -1187,6 +1123,19 @@ def cso_shuffle_deletion_function(G, SD, SigmaD, Xs, Xu):
     Xs are the secret states and Xu are .
     If it returns an empty automaton means the enfocement can be done.
     
+    ---------------
+    X = [ 0, 1, 2, 3,4,5,6,7,8 ]
+    E = [ a, b, c]
+    T = [ (0,a,1), (0,b,6), (1,b,2), (1,c,4), (2,c,3), (4,b,5), (6,c,7), (7,a,8)]
+    X0 = [ 0 ]
+    Xs = [ 3 ]
+    Xu = [ 4 ]
+    G = fsa ( X , E , T , X0, name = '\$G\$')
+    SD = [(2,[a]), (0,[b]), (1,[c])]
+    SigmaD = [ ]
+    
+    sdf = cso_shuffle_deletion_function(G, SD, SigmaD, Xs, Xu)
+    draw(G, sdf, 'figure')
     """
     D,Gint,Gshf,GaSD,Er = createGaSD(G,Xs,SD,SigmaD)
 
