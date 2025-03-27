@@ -1,3 +1,6 @@
+from deslab import *
+
+
 ## Performs the product operation between two TIA while adding labels
 def ti_label_obf(self, other):
     

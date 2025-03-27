@@ -4,6 +4,8 @@
 # Coorientador: Gustavo Sousa Viana
 
 from deslab import *
+import portion as P
+from deslab.toolboxes.ti_functions import *
 
 syms('N Y')
 
