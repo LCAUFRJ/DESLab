@@ -38,7 +38,7 @@ def Gscc(G,failevent,sigmas=[]):
     """Define Gscc as Gd//Gl
     If len(sigmas) > 1, returns Gscci = Gdi//...//Gl, i = len(sigmas)
 
-    Exemple:
+    Example:
     -------
     syms('0 1 2 3 4 5 6 c a ad p b f cl e d')
     X = [0,1,2,3,4,5,6]
@@ -78,7 +78,7 @@ def is_diagnosable(G,failevent,sigmas=[],method=''):
     """Returns the (co)diagnosability of G for the given observable sigmas in the choosen method.
     If sigmas=[], the function uses G.Sigobs as sigmas.
 
-    Exemple:
+    Example:
     --------
     syms('0 1 2 3 4 5 6 a b c f u')
     X = [0,1,2,3,4,5,6]
@@ -148,7 +148,7 @@ def Gv(G,failevent,sigmas=[]):
     """Returns Gv for the given observable sigmas.
     If sigmas is empty, the function uses G.Sigobs as sigmas
 
-    Exemple:
+    Example:
     --------
     syms('0 1 2 3 4 5 6 a b c f u')
     X = [0,1,2,3,4,5,6]

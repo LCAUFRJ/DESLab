@@ -597,6 +597,18 @@ def setupdir():
     dir_path[TEXFILES] = os.path.join(graphics_path, TEXFILES)    
     return
 
+def adjust_label_dot(filename):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    # Corrige os rótulos sem aspas
+    with open(filename, 'w') as file:
+        for line in lines:
+            if "label=" in line and not "label=\"" in line:
+                line = line.replace("label=", "label=\"")
+                line = line.replace(", style=", "\", style=")
+            file.write(line)
+
 def auto2dot(automaton):    
     """ 
     This function creates a dot description
@@ -675,6 +687,7 @@ def automaton2tikfig(automaton):
     fileObj = open(file, 'w')
     fileObj.write(auto_dotfile)
     fileObj.close()
+    adjust_label_dot(file)
     command = '%s -Txdot %s | '%(program, DOTINTERFACE) + 'python dot2tex_deslab.py -ftikz --codeonly --texmode math'
     try:
         fig_texcode = check_output(command,shell=True, cwd = dir_path[WORKING], stderr=subprocess.PIPE)

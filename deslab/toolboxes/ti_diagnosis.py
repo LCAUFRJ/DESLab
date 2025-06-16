@@ -4,6 +4,8 @@
 # Coorientador: Gustavo Sousa Viana
 
 from deslab import *
+import portion as P
+from deslab.toolboxes.ti_functions import *
 
 syms('N Y')
 
@@ -349,12 +351,45 @@ def unpack_gdtr(Gdt_renamed):
 
     return gdt_unp
 
-## Realiza o processo de construção dos automatos para o diagnóstico
-## de falhas em TIA.
-##ret = "GD" : (padrão) Retorna o Diagnosticador usando ti proj
-##ret = "AL" : Retorna o automato rotulador com intervalo de tempo
-##ret = "GL" : Retorna o produto de Gt com Alt, automato rotulado
+
 def ti_diag(Gt,failevent,ret="GD"):
+    """
+    Generates the automaton for fault diagnosis in TIA
+    ret variable can be defined as:
+            GD (Default): Returns the diagnoser GD;
+            AL: Returns the label automaton with time interval AL;
+            GL: Returns the product between Gt and AL.
+    -------
+    Example
+
+    syms('a b c f')
+
+    # automaton definition G_T
+    Xt1 = [0, 1, 2, 3, 4, 5]
+    Et1 =[a,b,c,f]
+    sigobst1 = [a,c]
+    X0t1 = [0]
+    Xmt1 = []
+    Tt1 = [(0,a,1),(1,b,2),(2,a,3),(1,f,4), (3,c,3), (4,a,5), (5,c,5)]
+    
+    mut1 = {(0,a,1): P.closed(1,2),
+            (1,b,2): P.closed(3,4),
+            (2,a,3): P.closed(2.5,4),
+            (1,f,4): P.closed(0,1),
+            (3,c,3): P.closed(0.5,1.5),
+            (4,a,5): P.closed(2.5,4), 
+            (5,c,5): P.closed(1,2)
+           }
+    
+    G = fsa(Xt1,Et1,Tt1,X0t1,Xmt1,Sigobs=sigobst1,name="$G_{T}$")
+    GT = tia(G,mut1)
+
+    # Diagnoser
+    ti_draw(GT, 'figure')
+    gdt = ti_diag(GT,f)
+    ti_draw(gdt,'figure')
+
+    """
     Xl = ['N', 'Y']
     Sigl = Gt[0].Sigma
     Sigobsl = Gt[0].Sigobs
@@ -383,6 +418,38 @@ def ti_diag(Gt,failevent,ret="GD"):
 
 ## Constroi e retorna o autômato Gscc
 def ti_scc(Gt,failevent):
+    """
+    Generates the automaton for fault diagnosis
+    based in searching for Strongly Connected Components
+    -------
+    Example
+
+    syms('a b u f')
+
+    # automaton definition G_T
+    Xt1 = [0, 1, 2, 3, 4, 5]
+    Et1 =[a, b, u, f]
+    sigobst1 = [a,b]
+    X0t1 = [0]
+    Xmt1 = [ ]
+    Tt1 = [(0,u,1),(1,a,2),(2,b,0),(1,f,3), (3,a,4), (4,b,5), (5,f,3)]
+    
+    mut1 = {(0,u,1): P.closed(2,2.5),
+            (1,a,2): P.closed(3,4),
+            (2,b,0): P.closed(1,4),
+            (1,f,3): P.closed(2,3),
+            (3,a,4): P.closed(1,2),
+            (4,b,5): P.closed(2,5),
+            (5,f,3): P.closed(2,4)
+           }
+    
+    G = fsa(Xt1,Et1,Tt1,X0t1,Xmt1,Sigobs=sigobst1,name="$G_{T}$")
+    GT = tia(G,mut1)
+
+    # Timed test automaton
+    gscc = ti_scc(GT,f)
+    ti_draw(gscc,'figure')
+    """
     Glt = ti_simplify(ti_diag(Gt,failevent,'GL'))
     Gltri = rename_glt(Glt,'GRI')
     Gltrf = rename_glt(Glt)

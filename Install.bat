@@ -1,5 +1,5 @@
-@REM msiexec /i programas\graphviz-2.28.0.msi
-@REM pause
+msiexec /i programas\graphviz-2.28.0.msi
+
 
 pip install decorator==5.5.1
 
@@ -7,7 +7,7 @@ pip install fado==2.2.0
 
 pip install future==1.0.0
 
-pip install networkx=2.8.8
+pip install networkx==2.8.8
 
 pip install pandas==2.2.3
 
