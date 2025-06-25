@@ -5,10 +5,10 @@ import portion as P
 from sys import intern
 from copy import deepcopy
 
-## Documentos dessa biblioteca estão aqui:
+## Documents for this library can be found here:
 ## https://github.com/AlexandreDecan/portion
 
-#CLASSES AUXILIARES:
+#AUXILIARY CLASSES:
 class Py2Key:
 
     __slots__ = ("value", "typestr")
@@ -28,12 +28,84 @@ class Py2Key:
 syms('N Y')
 
 def tia(G,mu):
+    """
+    This instruction defines a time-interval automaton object inside DESlab.
+
+    -------
+    Example
+
+    syms('a b u')
+    # automaton definition G_T
+    Xt = [0, 1, 2, 3, 4, 5, 6]
+    Et =[a,b,u]
+    sigobst = [a,b,u]
+    X0t = [0]
+    Xmt = [ ]
+    Tt = [(0,u,1),(0,a,4),(1,a,2),(2,b,3),(4,u,5),(5,b,6),(5,b,3)]
+    
+    mut = {(0,u,1): P.closed(0,2),
+          (0,a,4): P.closed(1,3.5),
+          (1,a,2): P.closed(1,3),
+          (2,b,3): P.closed(2,3),
+          (4,u,5): P.closed(0.5,1.5),
+          (5,b,6): P.closed(2,4),
+          (5,b,3): P.closed(1,3)
+          }
+    
+    G = fsa(Xt,Et,Tt,X0t,Xmt,Sigobs=sigobst,name="$G_T$")
+    GT = tia(G,mut)
+    ti_draw(GT)
+  
+    """
     Gt = (G,mu)
     return Gt
 
-## Adiciona os intervalos aos labels das transições e desenha
-## o novo autômato Gtia (sem modificar o original)
+
 def ti_draw(*Gt):
+    """
+    This instruction Create the state transition diagram of a 
+    time-interval automaton where transitions consist of the event 
+    and the corresponding time interval.
+    It receives the TIA and if desired the display mode:
+        Figure
+        Figurecolor
+        Beamer
+    
+    -------
+    Example
+
+    syms('a b u')
+    # automaton definition G_T
+    Xt = [0, 1, 2, 3, 4, 5, 6]
+    Et =[a,b,u]
+    sigobst = [a,b,u]
+    X0t = [0]
+    Xmt = [ ]
+    Tt = [(0,u,1),(0,a,4),(1,a,2),(2,b,3),(4,u,5),(5,b,6),(5,b,3)]
+    
+    mut = {(0,u,1): P.closed(0,2),
+          (0,a,4): P.closed(1,3.5),
+          (1,a,2): P.closed(1,3),
+          (2,b,3): P.closed(2,3),
+          (4,u,5): P.closed(0.5,1.5),
+          (5,b,6): P.closed(2,4),
+          (5,b,3): P.closed(1,3)
+          }
+    
+    G = fsa(Xt,Et,Tt,X0t,Xmt,Sigobs=sigobst,name="$G_T$")
+    GT = tia(G,mut)
+    # G_T in bearmer format
+    ti_draw(GT)
+
+    # G_T in bearmer format
+    ti_draw(GT, 'beamer')
+
+    # G_T in figure format
+    ti_draw(GT, 'figure')
+
+    # G_T in figurecolor format
+    ti_draw(GT, 'figurecolor')
+    """
     if type(Gt[-1]) == str:
         style = Gt[-1]
     else:
@@ -55,8 +127,40 @@ def ti_draw(*Gt):
             draw(Gtia,style)
     return
 
-## Função para determinar o Caminho Detectável de um estado em Gt
+
 def DP(Gt,state):
+    """
+    Return all the possible detectable paths that start from the given 
+    state of a time-interval automaton.
+    
+    -------
+    Example
+
+    syms('a b u')
+
+    # automaton definition G_T
+    Xt = [0, 1, 2, 3, 4, 5, 6]
+    Et =[a,b,u]
+    sigobst = [a,b]
+    X0t = [0]
+    Xmt = []
+    Tt = [(0,u,1),(0,a,4),(1,a,2),(2,b,3),(4,u,5),(5,b,6),(5,b,3)]
+    
+    mut = {(0,u,1): P.closed(0,2),
+           (0,a,4): P.closed(1,3.5),
+           (1,a,2): P.closed(1,3),
+           (2,b,3): P.closed(2,3),
+           (4,u,5): P.closed(0.5,1.5),
+           (5,b,6): P.closed(2,4),
+           (5,b,3): P.closed(1,3)
+          }
+    
+    G = fsa(Xt,Et,Tt,X0t,Xmt,Sigobs=sigobst,name="$G_T$")
+    GT = tia(G,mut)
+
+    # Print the detectable path from state 4
+    print(DP(GT, 4))
+    """
     G = Gt[0]
     DP = [] 
     Eobs = list(G.Sigobs)
@@ -64,8 +168,7 @@ def DP(Gt,state):
 
     for event in E_active:
         evact = G.delta(state,event)
-        if isinstance(evact,frozenset): #caso seja nao det
-            #transicao com o mesmo ev indo para estados diferentes
+        if isinstance(evact,frozenset):
             conj = list(evact)
             for el in conj:
                 DP += [[(state,event,el)]]
@@ -73,50 +176,67 @@ def DP(Gt,state):
             conj = evact
             DP += [[(state,event,conj)]]
         
-##    print("Detectable Path in DP: " + str(DP))
     aux = DP[:]
     while len(aux) != 0:
         for p in DP:
             last_event = p[len(p) - 1][1]
             last_state = p[len(p) - 1][2]
-##            print("last event of " + str(p) + " is "  + str(last_event))
-##            print("last state of " + str(p) + " is "  + str(last_state))
             if p in aux:
                 aux.remove(p)
             if last_event not in Eobs:
                 DP.remove(p)
-##                E_actives_p = list(G.Gamma(last_state))
                 E_actives_p = G.Gamma(last_state)
                 for ev in E_actives_p:
-##                    try:
                     if type(G.delta(last_state,ev)) == frozenset:
-##                        print("Identificou MAIS DE UM estado!")
                         for dest_state in G.delta(last_state,ev):
-##                            print("estado destino: " + str(dest_state))
                             p_actual = p[:]
-##                            print("p_atual: " + str(p_actual))
                             p_new = (last_state, ev, dest_state)
                             p_actual.append(p_new)
                             aux.append(p_actual)
                             DP.append(p_actual)
-##                    except TypeError:
                     else:
-##                        print("Identificou APENAS UM estado!")
                         p_actual = p[:]
                         p_new = (last_state, ev, G.delta(last_state,ev))
                         p_actual.append(p_new)
                         aux.append(p_actual)
                         DP.append(p_actual)
-##    print("")
     return DP
 
-## Faz a projeção de um Time-Interval Automaton, mas o resultado
-## ainda pode ser não-deterministico.
-def ti_proj(Gt):
-    
 
-    ## Calcula o conjunto de estados destino de eventos
-    ## observáveis ou não-observáveis
+def ti_proj(Gt):
+    """
+    Compute the projection TIA of a time-interval automaton.
+
+    -------
+    Example
+    
+    syms('u')
+
+    # automaton definition G_T
+    Xt = [0, 1, 2, 3]
+    Et =[a,b,u]
+    sigobst = [a,b]
+    X0t = [0]
+    Xmt = [ ]
+    Tt = [(0,u,1),(1,a,2),(2,b,3)]
+    
+    mut = {(0,u,1): P.closed(0,2),
+            (1,a,2): P.closed(1,3),
+            (2,b,3): P.closed(2,3)
+          }
+    
+    G = fsa(Xt,Et,Tt,X0t,Xmt,Sigobs=sigobst,name="$G_T$")
+    GT = tia(G,mut)
+    ti_draw(GT, 'figure')
+
+    # Generate the projection of G_T
+    d = ti_proj(GT)
+    ti_draw(d, 'figure')
+    """
+
+    ## Computes
+    ## Calculate the set of destination states for events
+    ## observable or non-observable
     def SubsetX(G, mode = 'Obs'):
         """
         mode : if 'Obs', return Subset of states that receive a transition
@@ -137,9 +257,8 @@ def ti_proj(Gt):
         
         return X_new
     
-
-
-    ## Função interna para gerar a projeção observável do caminho e o Intervalo gerado
+    ## Internal function to generate the observable projection
+    ## of the path and the generated Interval
     def ObservableProj(path,mu):
         #mu_temp = dict(mu)
         # Se caminho possui apenas uma transição, então ja é com um evento observavel
@@ -184,7 +303,7 @@ def ti_proj(Gt):
 ##          return proj_path, mu_list
             return proj_path, mu_dict
 
-##  \/ MAIN TI PROJ ================================================ \/
+    ##  MAIN TI PROJ ##
     G = Gt[0]
     mu_old = Gt[1]
     X0_new = list(G.X0)
@@ -193,20 +312,17 @@ def ti_proj(Gt):
     T_new = []
     mu_new = dict()
     
-    # Adiciona a X_new os estados de destino das transições rotuladas por eventos observáveis
-##    print(str(X_new) + " antes da função SubsetX")
+    # Adds to X_new the destination states of transitions labeled by observable events
     X_new += SubsetX(G, 'Obs')
-##    print(str(X_new) + " depois da função SubsetX")
     
-    # Calcula o Caminho Detectável de cada estado em X com Gamma > 0
+    # Calculates the Detectable Path for each state in X with Gamma > 0
     path = []
     for x in X_new:
         if list(G.Gamma(x)):
             dp = DP(Gt,x)
             path += dp
-##    print("All Paths = " + str(path))
             
-    # Projeta os Caminhos Detectáveis, criando as novas transições e seus I associados
+    # Projects the Detectable Paths, creating the new transitions and their associated I
     proj = []
     for p in path:
         p_proj, proj_mu = ObservableProj(p,mu_old)
@@ -214,13 +330,13 @@ def ti_proj(Gt):
         mu_new.update(proj_mu)
     T_new = proj
 
-    #marcando estados
+    #marking states
     Xm_new = []
     for x in X_new:
         if x in G.Xm:
             Xm_new +=[x]
     
-    # Criando o autômato projeção e juntando com a função de tempo mu_new
+    # Creates the projection automaton and combines it with the time function mu_new
     Pi_Gt = fsa(X_new, E_new, T_new, X0_new, Xm_new, name = '$\Pi(' + G.name + ')$')
     Pi_Gt.setgraphic(style='observer')
     Gproj = (Pi_Gt,mu_new)
@@ -228,7 +344,7 @@ def ti_proj(Gt):
     return Gproj
 
 
-## Retorna a interseção entre todos os intervalos.
+## Returns the intersection of all intervals
 def mu_intersection(mu, intervals):
     inter = P.closedopen(0,P.inf)
 ##    print("o que é isso: " + str(intervals))
@@ -238,8 +354,43 @@ def mu_intersection(mu, intervals):
         
     return inter
 
-## Constrói o automato determinístico equivalente
 def ti_equi_det(Gt):
+    """
+    Remove nondeterminism from a TIA which are:
+        There is more than one initial state;
+
+        There is more than one transition originating from a state,
+        labeled with the same event, and whose time intervals 
+        are not disjoint
+
+    -------
+    Example
+
+    Xt = [0, 1, 2, 3, 4, 5, 6]
+    Et =[a,b,c]
+    sigobst = [a,b,c]
+    X0t = [0,1]
+    Xmt = [ ]
+    Tt = [(0,c,1),(0,c,4),(1,a,2),(2,b,3),(4,c,5),(5,b,6),(5,b,3)]
+    
+    mut = {(0,c,1): P.closed(0,2),
+            (0,c,4): P.closed(1,3.5),
+            (1,a,2): P.closed(1,3),
+            (2,b,3): P.closed(2,3),
+            (4,c,5): P.closed(0.5,1.5),
+            (5,b,6): P.closed(2,4),
+            (5,b,3): P.closed(1,3)
+          }
+    
+    G = fsa(Xt,Et,Tt,X0t,Xmt,Sigobs=sigobst,name="$G_T$")
+    GT = tia(G,mut)
+    ti_draw(GT, 'figure')
+
+    #Generate the deterministic equivalent of G_T
+    d = ti_equi_det(GT)
+    ti_draw(d, 'figure')
+    """
+
     G = Gt[0]
     mu_old = Gt[1]
     initial = list(G.X0)
@@ -326,8 +477,8 @@ def ti_equi_det(Gt):
     return Gt_det
 
 
-## Retorna um dicionario com as transições disjuntas, incluindo 
-## novos estados e seus I associados.
+## Returns a dictionary with disjoint transitions, 
+# including new states and their associated I.
 def max_disj_trans(mu,transitions):
 
     ## ERROR HANDLE ZONE ===============================================\/
@@ -413,10 +564,10 @@ def max_disj_trans(mu,transitions):
     return newmu, disj_set
 
 
-## Renomeia os eventos observáveis no fim de um Caminho Detectável
-## e os estados de Glt com os eventos que levam a ele.
-## ret = 'GRF' : retorna Glt com os estados renomeados (Renomeado Final)
-## ret = 'GRI' : retorna Glt com as transições renomeadas (Renomeado Intermediario)
+## Renames observable events at the end of a Detectable Path and
+# the states of Glt with the events that lead to it.
+## ret = 'GRF': Returns Glt with renamed states (Renamed Final).
+## ret = 'GRI': Returns Glt with renamed transitions (Renamed Intermediate).
 def rename_glt(Glt,ret = 'GRF'):
     
     G,Mu = Glt
@@ -554,8 +705,8 @@ def rename_glt(Glt,ret = 'GRF'):
         glt_rf = tia(glrf,Murf)
         return glt_rf
 
-## Em Construção: Descompacta os estados renomeados de Gdtr,
-## renomeando os estados e criando ou substituindo as transições.
+## Under Construction: Unpacks the renamed states of Gdtr, renaming 
+# states and creating or replacing transitions
 def unpack_gdtr(Gdt_renamed):
 
     G,Mu = Gdt_renamed
@@ -767,9 +918,55 @@ def ext_ti_product(self,other):
     return extprod
 
 
-## Realiza a operação produto entre dois TIA
+
 def ti_product(self, other):
+    """
+    Performs the product composition between two TIAs, where 
+    transitions synchronize on common events, and the intersection
+    of their respective time intervals is computed.
+
+    -------
+    Example
+
+    from deslab import *
+
+    # automaton definition G1
+    Xt1 = [0, 1, 2]
+    Et1 =[a,b]
+    sigobst1 = [a,b]
+    X0t1 = [0]
+    Xmt1 = [ ]
+    Tt1 = [(0,a,1),(1,b,2)]
     
+    mut1 = \{(0,a,1): P.closed(1,3),
+            (1,b,2): P.closed(0,2)
+        \}
+    
+    G1 = fsa(Xt1,Et1,Tt1,X0t1,Xmt1,Sigobs=sigobst1,name="$G_{1}$")
+    G_tia1 = tia(G1,mut1)
+    ti_draw(G_tia1, 'figure')
+    
+    # automaton definition G2
+    Xt2 = [0, 1, 2, 3, 4]
+    Et2 =[a,b,c]
+    sigobst2 = [a,b,c]
+    X0t2 = [0]
+    Xmt2 = [ ]
+    Tt2 = [(0,a,1),(1,c,2),(2,b,3),(0,c,4)]
+    
+    mut2 = {(0,a,1): P.closed(2,4),
+            (1,c,2): P.closed(1,3),
+            (2,b,3): P.closed(1,4),
+            (0,c,4): P.closed(0,4)
+        }
+    
+    G2 = fsa(Xt2,Et2,Tt2,X0t2,Xmt2,Sigobs=sigobst2,name="$G_{2}$")
+    G_tia2 = tia(G2,mut2)
+    ti_draw(G_tia2,'figure')
+
+    # Product
+    ti_draw(ti_product(G_tia1,G_tia2),'figure')
+    """
     def pars(var):
         resp=()
         for i in var:
@@ -854,7 +1051,6 @@ def ti_product(self, other):
     # main stack cycle    
     while S != [] :
         p = S.pop() # taking a tuple
-        #lembrando que p1 e p2 podem ser tuplas
         p1, p2 = p     
         for sigma in Gamma_prod(p):
             Q1_n, Q2_n = delta1(p1, sigma), delta2(p2,sigma)
@@ -862,35 +1058,25 @@ def ti_product(self, other):
                 Q1_n = set([Q1_n])
             if type(Q2_n) == tuple:
                 Q2_n = set([Q2_n])
-##            print("Q1n: " + str(Q1_n) + " " + str(type(Q1_n)) + "\nQ2n: " + str(Q2_n) +" " + str(type(Q2_n)) +"\n")
             try:
                 type1 = (type(Q1_n) == str or type(Q1_n) == int)
                 type2 = (type(Q2_n) == str or type(Q2_n) == int)
                 if type1 and not type2:
-##                    print("Q1 é str e Q2 não!")
                     Q = list()
                     for q2 in Q2_n:
                         Q.append((Q1_n,q2))
                 elif not type1 and type2:
-##                    print("Q2 é str e Q1 não!")
                     Q = list()
                     for q1 in Q1_n:
                         Q.append((q1,Q2_n))
                 elif type1 and type2:
-##                    print("Tanto Q1 quanto Q2 são str!")
-                    #Q = list((Q1_n,Q2_n))
                     Q = [(Q1_n,Q2_n)]
                 elif not type1 and not type2:
-##                    print("Nem Q1 nem Q2 são str!")
-                    #TODAS AS DUPLAS POSSIVEIS
                     Q = list((q1,q2) for q1 in Q1_n  for q2 in Q2_n)
-##                print("Q: " + str(Q) + "\n")
                 
                 
                 # Q contains the tuples for reached states
                 for q in Q:
-##                    print("p1: " + str(p1) + " | p2: " + str(p2))
-##                    print("q: " + str(q) + "\n")
                     if Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])] != P.empty():
                         if q not in X_p:
                             # updating states of composite automaton and stack
@@ -900,19 +1086,12 @@ def ti_product(self, other):
                             # updating marked states
                             if (q1 in Xm1) & (q2 in Xm2):
                                 Xm_p = Xm_p | set([q]) 
-                            #updating latex dictionary
-                            #table_p.update({q: latexname(q,simplify)})
                         transition.append([p,sigma,q])
                         if not mu_p.get((p,sigma,q)):
                             mu_int = Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])]
                             mu_p[(p,sigma,q)] = mu_int
-##                print("--------------\n")
             except:
-##                print("> EXCEPT <")
                 q = (Q1_n,Q2_n)
-##                print("p1: " + str(p1) + " | p2: " + str(p2))
-##                print("q: " + str(q) + "\n")
-##                print("--------------\n")
                 if Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])] != P.empty():
                     if q not in X_p:
                         # updating state and stack                                                     
@@ -922,28 +1101,17 @@ def ti_product(self, other):
                         if (q1 in Xm1) & (q2 in Xm2):
                             # updating marked states
                             Xm_p =Xm_p | set([q])
-                        # updating labeling table 
-                        #table_p.update({q: latexname(q,simplify)})
                     transition.append([p,sigma,q])
                     if not mu_p.get((p,sigma,q)):
                         mu_int = Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])]
                         mu_p[(p,sigma,q)] = mu_int
-                    
-            #if sigma in self[0].symDict:
-                #table_p.update({sigma: self[0].symDict[sigma]}) 
-            #elif sigma in other[0].symDict:
-                #table_p.update({sigma: other[0].symDict[sigma]}) 
 
-    # finally, we build the composite automaton    
-   # prodnondet = fsa(list(X_p), Sigma_p, transition, X0_p, list(Xm_p), table=table_p,
-                  #Sigobs = Sigobs_p, Sigcon=Sigcon_p,name='untitled')
+    # finally, we build the composite automaton
     prodnondet = fsa(list(X_p), Sigma_p, transition, X0_p, list(Xm_p), table=table_p,
                   Sigobs = Sigobs_p, Sigcon=Sigcon_p,name='untitled')
     tiprod = tia(prodnondet,mu_p)
     return tiprod
 
-    
-## Adiciona os tempos maximo e mínimo de dois intervalos
 def interval_offset(self,other):    
     left1, left2 = self.left , other.left
     lower1, lower2 = self.lower , other.lower
@@ -961,7 +1129,7 @@ def interval_offset(self,other):
         right_off = True
     return P.from_data([(left_off,lower_off,upper_off,right_off)])
 
-## Em Construção: mesma função simplify da toolbox Diagnosis, mas para um TIA
+## Same function of diagnosis toolbox, but for TIA
 def ti_simplify(Gt):
     g=Gt[0].copy()
     mu=Gt[1].copy()
@@ -995,13 +1163,37 @@ def ti_simplify(Gt):
     renamed_gt = tia(g.renamestates(mapping),renmu)
     return renamed_gt
 
-#Complementar de um TIA
+
 def ti_complement(Gt):
-    #desmarcar todos os estados e adicionar estado dump xd
+    """
+    Generates the TIA that marks the complement of the marked 
+    time-interval language of a given TIA.
+
+    -------
+    Example
+    
+    # automaton definition G_T
+    Xt1 = [0, 1]
+    Et1 =[a]
+    sigobst1 = [a]
+    X0t1 = [0]
+    Xmt1 = [ ]
+    Tt1 = [(0,a,1)]
+    
+    mut1 = {(0,a,1): P.closed(1,3)
+           }
+    
+    G1 = fsa(Xt1,Et1,Tt1,X0t1,Xmt1,Sigobs=sigobst1,name="$G_{1}$")
+    G_tia1 = tia(G1,mut1)
+    ti_draw(G_tia1,'figure')
+
+    # Complement
+    ti_draw(ti_complement(G_tia1),'figure')
+    """
+    # Unmark all states and add the dump state xd
     G = Gt[0]
     mu_new = Gt[1].copy()
     NewMarked = list(G.X - G.Xm) + ['dump']
-    #NewStates = list(G.X) + ['dump']
     G = G.addstate('dump')
     G = G.setpar(Xm=NewMarked)
     
@@ -1010,33 +1202,34 @@ def ti_complement(Gt):
     for x in G.X:
         trans = []
         active = []
-        #conjunto de transicoes que saem de x
+        # Set of transitions that leave x
         for t in G.transitions():
             if t[0]==x:
                 trans += [t]
-                active += [t[1]] #eventos ativos
-        #fazer o complementar da uniao dos intervalos associados ao evento ev
-        #que sai do estado x
+                active += [t[1]] # Active events
+        # Compute the complement of the union of the intervals associated 
+        # with the event ev that leaves the state x
         for ev in active:
             union = P.empty()
             for t in trans:
                 if t[1] == ev:
                     union = union | mu_new[t]
-            comp = P.closedopen(0,P.inf) - union #intervalo complementar
-            #criar transicao com evento ev e intervalo comp que leva para dump
-            newt = (x,ev,'dump') #nova transicao
-            mu_new[newt] = comp #intervalo associado a nova transicao
+            comp = P.closedopen(0,P.inf) - union # Complementary interval
+            # Create a transition with the event ev and the complementary interval
+            # comp that leads to the dump state
+            newt = (x,ev,'dump') #new transition
+            mu_new[newt] = comp # Interval associated with the new transition
             G = G.addtransition(newt)
             Gtcomp = tia(G, mu_new)
 
-        #transicoes para o dump com os eventos nao definidos no estado 
+        #Transitions to the dump state with events not defined in the state
         for ev in list(set(G.Sigma) - set(active)):
             newt = (x,ev,'dump')
             mu_new[newt] = P.closedopen(0,P.inf)
             G = G.addtransition(newt)
             Gtcomp = tia(G,mu_new)
 
-    #autolacos no dump
+    # Self-loops in the dump state
     for ev in list(G.Sigma):
         newt = ('dump',ev,'dump')
         mu_new[newt] = P.closedopen(0,P.inf)
@@ -1046,593 +1239,6 @@ def ti_complement(Gt):
 
     return Gtcomp
             
-
-#-----------------------------------------------------------------------------
-#-------------------------- opacidade novo -----------------------------------
-#-----------------------------------------------------------------------------
-
-## Realiza a operação produto entre dois TIA colocando labels
-def ti_label_obf(self, other):
-    
-    def pars(var):
-        resp=()
-        for i in var:
-            if type(i)==tuple:
-                resp+=pars(i)
-            else:
-                resp+=(i,)
-        return resp
-    
-    def Gamma_prod(p):
-        """ definition of the Gamma function of parallel
-        composition of the input automata for the tuple
-        p = (x1,x2)"""
-        x1, x2 = p
-        active_events = Gamma1(x1) & Gamma2(x2)
-        
-        return active_events
-
-    def latexname(p,simplify):  
-        """This function takes a tuple of the composite 
-        automaton and generate a latex pretty name, based
-        on the dictionaries of each input automaton"""
-        x1, x2 = p
-        if x1 in self[0].symDict:
-            x1_name = self.symDict[x1]
-        else: 
-            x1_name = str(x1)
-        if x2 in other[0].symDict:
-            x2_name = other.symDict[x2]
-        else: 
-            x2_name = str(x2)
-        name = '('+x1_name+','+x2_name+')'
-        if simplify:
-            name = name.replace("(","")
-            name = name.replace(")","")
-            name = '('+name+')'
-        return name
-
-    # Main program
-
-    # G1 marks an empty language and G2 does not
-    if self[0].empty and not other[0].empty:
-        return tia(fsa(),dict())
-    # G1 and G2 marks empty languages
-    elif self[0].empty and other[0].empty:
-        return tia(fsa(),dict())
-    # G1 marks a nonempty language and G2 does.
-    elif not self[0].empty and other[0].empty:
-        return tia(fsa(),dict())
-    
-    # easy names for inner variables
-    X1, X2 = self[0].X, other[0].X
-    X01, X02 = self[0].X0, other[0].X0
-    Xm1, Xm2 = self[0].Xm, other[0].Xm 
-    Sigma1, Sigma2 = self[0].Sigma, other[0].Sigma
-    Gamma1, Gamma2 = self[0].Gamma, other[0].Gamma 
-    delta1, delta2 = self[0].delta, other[0].delta   
-    Sigobs1, Sigobs2 = self[0].Sigobs, other[0].Sigobs         
-    Sigcon1, Sigcon2 = self[0].Sigcon, other[0].Sigcon
-    Mu1, Mu2 = self[1], other[1]
-
-
-    # initial values for composite automaton
-    X0_p = [(x01,x02) for x01 in X01 for x02 in X02]
-    S = [(x01,x02) for x01 in X01 for x02 in X02]
-    X_p = set(X0_p)
-    Xm_p = frozenset([]) #DEPOIS TRANSFORMAR EM LISTA?
-    #Sigobs_p = Sigobs1|Sigobs2 
-    #Sigcon_p = Sigcon1|Sigcon2
-    Sigma_p = list(Sigma1 | Sigma2)
-    Sigma_pl = []
-    transition=[]
-    mu_p = dict()
-
-    #renaming events
-    for el in Sigma_p:
-        Sigma_pl.append(el+' '+'co')
-        Sigma_pl.append(el+' '+'po')
-        Sigma_pl.append(el+' '+'cr')
-        Sigma_pl.append(el+' '+'pr')
-
-    # generating labeling table for initial states
-    table_p = {}
-    for p in X0_p: # labeling initial states
-        #table_p.update({p: latexname(p,simplify)})
-        p1,p2 = p
-        if (p1 in Xm1) & (p2 in Xm2):
-            Xm_p = Xm_p | set([p])
-   
-    # main stack cycle    
-    while S != [] :
-        p = S.pop() # taking a tuple
-        #lembrando que p1 e p2 podem ser tuplas
-        p1, p2 = p     
-        for sigma in Gamma_prod(p):
-            Q1_n, Q2_n = delta1(p1, sigma), delta2(p2,sigma)
-            if type(Q1_n) == tuple:
-                Q1_n = set([Q1_n])
-            if type(Q2_n) == tuple:
-                Q2_n = set([Q2_n])
-##            print("Q1n: " + str(Q1_n) + " " + str(type(Q1_n)) + "\nQ2n: " + str(Q2_n) +" " + str(type(Q2_n)) +"\n")
-            try:
-                type1 = (type(Q1_n) == str or type(Q1_n) == int)
-                type2 = (type(Q2_n) == str or type(Q2_n) == int)
-                if type1 and not type2:
-##                    print("Q1 é str e Q2 não!")
-                    Q = list()
-                    for q2 in Q2_n:
-                        Q.append((Q1_n,q2))
-                elif not type1 and type2:
-##                    print("Q2 é str e Q1 não!")
-                    Q = list()
-                    for q1 in Q1_n:
-                        Q.append((q1,Q2_n))
-                elif type1 and type2:
-##                    print("Tanto Q1 quanto Q2 são str!")
-                    #Q = list((Q1_n,Q2_n))
-                    Q = [(Q1_n,Q2_n)]
-                elif not type1 and not type2:
-##                    print("Nem Q1 nem Q2 são str!")
-                    #TODAS AS DUPLAS POSSIVEIS
-                    Q = list((q1,q2) for q1 in Q1_n  for q2 in Q2_n)
-##                print("Q: " + str(Q) + "\n")
-                
-                
-                # Q contains the tuples for reached states
-                for q in Q:
-##                    print("p1: " + str(p1) + " | p2: " + str(p2))
-##                    print("q: " + str(q) + "\n")
-                    if Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])] != P.empty():
-                        if q not in X_p:
-                            # updating states of composite automaton and stack
-                            X_p = X_p | set([q])           
-                            S.append(q)
-                            q1, q2 = q
-                            # updating marked states
-                            if (q1 in Xm1) & (q2 in Xm2):
-                                Xm_p = Xm_p | set([q]) 
-                            #updating latex dictionary
-                            #table_p.update({q: latexname(q,simplify)})
-                                
-                        if Mu1[(p1,sigma,q[0])] in Mu2[(p2,sigma,q[1])]:
-                            transition.append([p,sigma+' '+'co',q])
-                            if not mu_p.get((p,sigma+' '+'co',q)):
-                                mu_int = Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])]
-                                mu_p[(p,sigma+' '+'co',q)] = mu_int    
-                        else:
-                            transition.append([p,sigma+' '+'po',q])
-                            if not mu_p.get((p,sigma+' '+'po',q)):
-                                mu_int = Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])]
-                                mu_p[(p,sigma+' '+'po',q)] = mu_int    
-
-                           
-##                print("--------------\n")
-            except:
-##                print("> EXCEPT <")
-                q = (Q1_n,Q2_n)
-##                print("p1: " + str(p1) + " | p2: " + str(p2))
-##                print("q: " + str(q) + "\n")
-##                print("--------------\n")
-                if Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])] != P.empty():
-                    if q not in X_p:
-                        # updating state and stack                                                     
-                        X_p = X_p | set([q])           
-                        S.append(q)
-                        q1, q2 = q
-                        if (q1 in Xm1) & (q2 in Xm2):
-                            # updating marked states
-                            Xm_p =Xm_p | set([q])
-                        # updating labeling table 
-                        #table_p.update({q: latexname(q,simplify)})
-
-                    if Mu1[(p1,sigma,q[0])] in Mu2[(p2,sigma,q[1])]:
-                        transition.append([p,sigma+' '+'co',q])
-                        if not mu_p.get((p,sigma+' '+'co',q)):
-                            mu_int = Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])]
-                            mu_p[[p,sigma+' '+'co',q]] = mu_int    
-                        else:
-                            transition.append([p,sigma+' '+'po',q])
-                            if not mu_p.get((p,sigma+' '+'po',q)):
-                                mu_int = Mu1[(p1,sigma,q[0])] & Mu2[(p2,sigma,q[1])]
-                                mu_p[[p,sigma+' '+'po',q]] = mu_int   
-
-                     #transition.append([p,sigma,q])
-
-                   
-                        #mu_p[(p,sigma,q)] = mu_int
-                    
-            #if sigma in self[0].symDict:
-                #table_p.update({sigma: self[0].symDict[sigma]}) 
-            #elif sigma in other[0].symDict:
-                #table_p.update({sigma: other[0].symDict[sigma]}) 
-
-    # finally, we build the composite automaton    
-   # prodnondet = fsa(list(X_p), Sigma_p, transition, X0_p, list(Xm_p), table=table_p,
-                  #Sigobs = Sigobs_p, Sigcon=Sigcon_p,name='untitled')
-    prodnondet = fsa(list(X_p), Sigma_pl, transition, X0_p, list(Xm_p), table=table_p,
-                     name='$G_{obf}$')
-    tiprod = tia(prodnondet,mu_p)
-    return tiprod
-
-    
-
-
-## Realiza a operação produto entre dois TIA colocando labels Grev
-#Gs x Gns^c
-
-def ti_label_rev(self, other):
-    othercomp = ti_complement(other)
-    Grev = ti_label_obf(self,othercomp)
-    Comp_marked = othercomp[0].Xm
-    G = Grev[0]
-    dic = Grev[1] 
-    #M = Grev[0].X
-
-    for t in G.transitions():
-        x = t[0]
-        ev = t[1]
-        label = ev[len(ev)-2:] #label po, co pega os dois ultimos
-        event = ev[:-3] #evento em si, a, b, c ... tira os dois ultimos
-        xprox = t[2]
-        time = dic[t]
-        #if xprox in M:
-        if (x[1] != 'dump' and (xprox[1] in Comp_marked)):
-            if label == 'po':
-                new = event+' '+'pr'
-            if label == 'co':
-                new = event+' '+'cr'
-                    
-            G = G.renametransition([x,(ev,new),xprox])
-            dic[(x,new,xprox)] = time
-
-    Grev = fsa(G.X, G.Sigma, G.transitions(), G.X0, G.Xm,
-                     name='$G_{rev}$')
-    Grev = tia(Grev,dic)
-    return Grev
-            
-        
-def verifierTLBO(secret,nsecret,self,other):
-    #automatos
-    #self = Gobf
-    #other = Grev
-    #secret = Gs
-    #nsecret = Gns
-
-    #dicionarios:
-    #dself = label_obf
-    #dother = label_rev
-
-    dself = {} #dicionario com os labels {transicao - label}
-    dother = {}
-    self = self[0]
-    other = other[0]
-
-    for t in self.transitions():
-        ev = t[1]
-        e = ev[:-3] #tem espaço, por exemplo 'a co' entao tem que tirar os 3 ultimos pra pegar o nome do evento
-        lbl = ev[-2:]
-        self = self.renametransition([t[0],(ev,e),t[2]]) #tirando label do evento
-        #Gobf[1][t[0],e,t[2]] = Gobf[1].pop[t[0],ev,t[2]] nao preciso mais dos tempos entao talvez essa linha seja inutil
-            
-        dself[(t[0],e,t[2])] = lbl #adicionando label ao dicionario
-
-    for t in other.transitions():
-        ev = t[1]
-        e = ev[:-3]
-        lbl = ev[-2:]
-        other = other.renametransition([t[0],(ev,e),t[2]]) #tirando label do evento
-
-        dother[(t[0],e,t[2])] = lbl
-        
-
-    newdict = {} #novo dicionario para os labels das transicoes
-    #automato verifier vai ser o fsa + newdict = "tia" (acho que da pra fazer assim) 
-
-        
-    # -----------------------------------------------------------------------------------------------------------
-        
-    # Main program 
-    # easy names for inner variables
-    X1, X2 = self.X, other.X
-    X01, X02 = self.X0, other.X0
-    Xm1, Xm2 = self.Xm, other.Xm 
-    Sigma1, Sigma2 = secret.Sigma, nsecret.Sigma 
-    Gamma1, Gamma2 = self.Gamma, other.Gamma 
-    delta1, delta2 = self.__delta__, other.__delta__    
-    #Sigobs1,Sigobs2 = secret.Sigobs, nsecret.Sigobs         
-    #Sigcon1,Sigcon2 = secret.Sigcon, nsecret.Sigcon  
-        
-    # initial values for the composite automaton
-    #X0_p = [(tuple(X01),tuple(X02))] #Gobf e Grev normalmente nem tem mais de um estado inicial
-    X0_p = []
-    state_dict = {}
-
-    for state in secret.X0:
-        init_obf = ()
-        init_rev = ()
-        for es_obf in X01:
-            if es_obf[0] == state:
-                init_obf += (es_obf,)
-        for es_rev in X02:
-            if es_rev[0] == state:
-                init_rev += (es_rev,)
-        state_dict[(init_obf,init_rev)] = state
-        X0_p += [(init_obf,init_rev)]
-        
-            
-    S = deepcopy(X0_p)
-    X_p = deepcopy(X0_p)
-    Xm_p = []
-    #Sigobs_p = Sigobs1|Sigobs2 
-    #Sigcon_p = Sigcon1|Sigcon2
-    Sigma_p = Sigma1 | Sigma2
-    transition=[]
-
-    # main stack cycle     
-    while S != [] :
-        p = S.pop(); # taking a tuple
-        state_p = state_dict[p]
-        #print(state_p)
-        es1 = p[0]
-        es2 = p[1]
-        #es1 e es2 podem ser conjuntos de tuplas ou so uma tupla        
-
-        #transformei tudo em lista de uma vez
-        #acho que nao precisa, tudo parece ja estar setado como lista mesmo
-        if type(es1) != tuple:
-            es1 = tuple(es1)
-        if type(es2) != tuple:
-            es1 = tuple(es2)
-
-        for ev in Sigma1 | Sigma2: #aqui talvez seja melhor só escanear pelo conjunto de eventos ativos em ambos
-            Next1 = []
-            Next2 = []
-
-            #listas de proximos estados executando o evento ev
-            for state1 in es1:
-                if state1 != 'empty':
-                    if ev in Gamma1(state1):
-                        Next1 += tuple(delta1(state1,ev))
-                if state1 == 'empty':
-                    Next1 = ('empty',) #se for empty continua, nao soma porque quero um empty só
-            for state2 in es2:
-                if state2 != 'empty':
-                    if ev in Gamma2(state2):
-                        Next2 += tuple(delta2(state2,ev))
-                if state2 == 'empty':
-                    Next2 = ('empty',) #se for empty continua, nao soma porque quero um empty só
-
-
-            
-                
-            #checar estados de Gns na lista de proximos estados de Gobf e Grev
-            #nao sei se essa é a forma mais eficiente ... 
-            for state in secret.X:
-                lab_obf = []
-                lab_rev = []
-                
-                Next1_state = () #lista de proximos estados de Gobf cuja primeira componente é o estado state em Gs
-                Next2_state = () #lista de proximos estados de Grev cuja primeira componente é o estado state em Gs
-
-                #se um deles ja for empty, aqui vai virar a tupla vazia ()
-                for es in Next1:
-                    if es[0] == state:
-                        Next1_state += (es,)
-                    if type(es[0]) == tuple:
-                        if state in es[0]:
-                            Next1_state += (es,)
-                for es in Next2:
-                    if es[0] == state:
-                        Next2_state += (es,)
-                    if type(es[0]) == tuple:
-                        if state in es[0]:
-                            Next2_state += (es,)
-
-
-                #os dois nao podem ser vazios ao mesmo tempo. se forem, o automato nao anda pra frente
-                #aqui funciona tanto para o caso de nao ter proxima transicao quanto para o caso de ja ser empty antes (propagar o empty)
-                #só transformo em empty quando um deles nao é, entao se os dois forem vazios vai continuar [] para ambos
-                if Next1_state == () and Next2_state != ():
-                    Next1_state = ('empty',)
-                if Next2_state == () and Next1_state != ():
-                    Next2_state = ('empty',)
-
-                if Next1_state != () or Next2_state != (): #os dois nao podem ser vazios ao mesmo tempo
-                    #new_state_double = (Next1_state, Next2_state) #novo estado, pode ter duplicatas em cada componente
-                    
-                    #removendo redundancias (estados duplicados)
-                    Next1_state = tuple(set(Next1_state))
-                    Next2_state = tuple(set(Next2_state))
-
-                    new_state = (Next1_state, Next2_state)
-                    state_dict[new_state] = state
-                    #print(ev)
-                    #print(state)
-
-                    if (state_p,ev,state) in secret.transitions():
-                        new_transition = (p,ev,new_state)
-              
-                        if new_transition not in transition:
-                            #adicionar estado e transicao ao automato e a lista S tambem
-                            S.append(new_state)
-                            X_p.append(new_state)
-                            transition.append(new_transition)
-
-                            #estados marcados
-                            if state in secret.Xm:
-                                Xm_p.append(new_state)
-
-                            #adicionar tudo nos dicionarios e no dicionario novo
-                            for pobf in p[0]:
-                                for next_obf in Next1_state:
-                                    tobf = (pobf,ev,next_obf)
-                                    if tobf in self.transitions():
-                                        lab_obf += [dself[tobf]]
-
-                            for prev in p[1]:
-                                for next_rev in Next2_state:
-                                    trev = (prev,ev,next_rev)
-                                    if trev in other.transitions():
-                                        lab_rev += [dother[trev]]
-
-                            if lab_obf == []:
-                                lab_obf = ['empty']
-                            if lab_rev == []:
-                                lab_rev = ['empty']
-
-                            #acho que vou ter que trocar tudo pra tupla (pelo menos os objetos, que sao new_transition)
-                            newdict[new_transition] = [lab_obf,lab_rev] #dicionario novo
-                       
-
-                        
-    # finally, we build the composite automaton                                
-    verifier = fsa(X_p, Sigma_p, transition, X0_p, Xm_p,name='Verifier')
-    verifier.setgraphic(style='rectangle')
-    #verifier_label = tia(verifier,newdict)
-
-    return verifier, newdict, state_dict
-
-
-def label_draw(*Gt):
-    if type(Gt[-1]) == str:
-        style = Gt[-1]
-    else:
-        style = 'beamer'
-    for tia in Gt:
-        if type(tia) != tuple:
-            break
-        Gtia = tia[0]
-        new_sigobs = []
-        new_sig = []
-        if not isitempty(Gtia):
-            for trans in transitions(tia[0]):
-                ev_mu = trans[1]+str(tia[1][trans])
-                if trans[1] in tia[0].Sigobs:
-                    new_sigobs.append(ev_mu)
-                new_sig.append(ev_mu)
-                Gtia = Gtia.renametransition([trans[0],(trans[1],ev_mu),trans[2]])
-            Gtia = Gtia.setpar(Sigobs = new_sigobs)
-            draw(Gtia,style)
-        else:
-            draw(fsa())
-    return
-
-def TLBO(Gst,Gnst):
-
-    #projection of Gst
-    Gstproj = ti_proj(Gst)
-    Gstproj[0].name = 'Proj(Gst)'
-
-
-    #projection of Gnst 
-    Gnstproj = ti_proj(Gnst)
-    Gnstproj[0].name = 'Proj(Gnst)'
-
-    #observer of Gnst 
-    Gnsto = ti_equi_det(Gnstproj)
-    Gnsto[0].name = 'Obs(Gnst)'
-    
-
-    #complement of Obs(Gnst) 
-    Gnstocomp = ti_complement(Gnsto)
-    Gnstocomp[0].name = 'Comp(Obs(Gnst))'
-
-    #G Obfuscated 
-    Gobf = ti_label_obf(Gstproj,Gnstproj)
-
-    Gobf = tia(coac(Gobf[0]),Gobf[1])
-
-    #G Revealed
-    Grev = ti_label_rev(Gstproj,Gnsto)
-
-    Grev = tia(coac(Grev[0]),Grev[1])
-
-
-    if isitempty(Gobf[0]):
-        decision = 'Not opaque'
-        return decision
-        sys.exit()
-    
-    if isitempty(Grev[0]):
-        decision = 'TISO'
-        return decision
-        sys.exit()
-
-
-    #PART 1 VERIFICATION
-    #Gerar automato verificador com os labels nas transicoes
-    Gv,dict_v, dict_state = verifierTLBO(Gst[0],Gnst[0],Gobf,Grev)
-
-    Gv_label = tia(Gv,dict_v)
-    dict_original = deepcopy(Gv_label[1])
-    Gv_label_original = tia(Gv_label[0],dict_original)
-    
-    #PART 2 VERIFICATION
-    #Decidir um label para cada transicao do verificador
-    #Seguindo as regras que definem isso
-
-    for t in Gv.transitions():
-        labels = dict_v[t]
-        l_obf = labels[0]
-        l_rev = labels[1]
-
-        #1
-        if 'empty' in l_rev: 
-            dict_v[t] = 'co'
-            
-        #2    
-        if 'empty' in l_obf: 
-            dict_v[t] = 'cr'  
-
-        #todos parciais
-
-        
-        if ('empty' not in l_obf) and (('pr' in l_rev) or ('cr' in l_rev)): #and ('co' not in l_rev) and ('po' not in l_rev):
-            dict_v[t] = 'por'
-
-        if ('empty' not in l_obf) and (('po' in l_rev) or ('co' in l_rev)) and ('cr' not in l_rev) and ('pr' not in l_rev):
-            dict_v[t] = 'co'
-
-
-
-    #PART 3
-    #decisao da verificacao
-    flag_obf = 0
-    flag_part = 0
-    flag_rev = 0
-
-    Gobf_strings = Gv
-    Gpart_strings = Gv
-
-    for t in Gv.transitions():
-        if dict_v[t] == 'cr':
-            flag_rev = 1
-        
-        if (dict_v[t] != 'co'):
-            Gobf_strings = Gobf_strings.deletetransition(t)
-
-        if (dict_v[t] == 'cr'):
-            Gpart_strings = Gpart_strings.deletetransition(t)
-
-    if not isitempty(trim(Gobf_strings)):
-        flag_obf = 1
-
-    for t in Gpart_strings.transitions():
-        if dict_v[t] == 'por':
-            flag_part = 1
-
-    if (flag_part == 1)and (flag_rev == 0):
-        decision =  'TDSO'
-
-    if (flag_obf == 1) and (flag_rev == 1):
-        decision = 'TIWO'
-
-    if (flag_obf == 0) and (flag_part == 1) and (flag_rev == 1):
-        decision = 'TDWO'
-
-    return decision
-
 
 
 
