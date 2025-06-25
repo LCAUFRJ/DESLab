@@ -805,7 +805,13 @@ def write_texfile(TexString,TexfileOut):
     fileObj.close()
     return TexfileOut
 
-
+def write_texfile_here(TexString):
+    TexComplete = TexString+r'\end{document}'
+    tex_outputname = 'Figure'+'.tex'
+    Texpresfile = os.path.join(os.getcwd(),tex_outputname)      
+    fileObj = open(Texpresfile, 'w')
+    fileObj.write(TexComplete)
+    fileObj.close()
 
 def openviewer(filepdf):         
     # absolute path of the output of the pdf
@@ -826,7 +832,7 @@ def openviewer(filepdf):
 
 
       
-def draw(*automatavars):      
+def draw(*automatavars, save_file=False):      
     from deslab.src.automatadefs import fsa
     global fig_counter 
     setupdir() # we setup the directories in the current operative system 
@@ -868,6 +874,8 @@ def draw(*automatavars):
             preamble_tex += automaton2page(automaton, style)
         fig_counter += 1
     write_texfile(preamble_tex,TEXPAGEOUT)
+    if save_file:
+        write_texfile_here(preamble_tex)
     page_pdf = tex2pdf(TEXPAGEOUT)    
     openviewer(page_pdf)
     return 
