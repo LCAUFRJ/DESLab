@@ -1,6 +1,6 @@
 from deslab import *
 
-def current_state_op(G, Xs, Xns):
+def current_state_op(G, Xs, Xns=[]):
     """
     Return True if the current state opacity exists, otherwise return False.
     Xs represents the secret states, and Xns represents the non-secret states.
@@ -29,6 +29,9 @@ def current_state_op(G, Xs, Xns):
     
     
     all_states = G2.X
+
+    if Xns==[]:
+        Xns = [x for x in G.X if x not in Xs]
     
     for  states in all_states:
         secret_state = False
@@ -50,7 +53,7 @@ def inverse_automaton(G):
 
     return G
 
-def initial_state_opac(G, Xs, Xns):
+def initial_state_opac(G, Xs, Xns=[]):
     """
     Return True if the initial state opacity exists, otherwise return False.
     Xs represents the secret states, and Xns represents the non-secret states.
@@ -75,6 +78,10 @@ def initial_state_opac(G, Xs, Xns):
     
     SigmaOb = list(G.Sigobs)
     
+    if Xns==[]:
+        Xns = [x for x in G.X if x not in Xs]
+
+
     if sorted(G.X) == sorted(G.X0):
         allow_states = list(G.X0)
         G1 = G.setpar(Xm = G.X)
@@ -151,7 +158,7 @@ def language_based_opac(G1, G2, SigmaO):
     else:
         return False
     
-def initial_final_state_opac(G, xsp, xnsp):
+def initial_final_state_opac(G, xsp, xnsp=[]):
     """
     Return True if the initial-final state opacity exists, otherwise return False.
     xsp represents the secret states pairs, and xnsp represents the non-secret states pairs.
@@ -189,6 +196,12 @@ def initial_final_state_opac(G, xsp, xnsp):
     states_aux = {}
 
     SigmaOb = list(G.Sigobs)
+
+
+    if xnsp==[]:
+        xnsp_aux = [(a, b) for a in G.X for b in G.X]
+        xnsp = [xp for xp in xnsp_aux if xp not in xsp]
+
     # building m0
     for i in X0:
         aux = (i,i)

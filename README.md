@@ -75,4 +75,3 @@ Follow these steps to configure environment variables:
    T = [(q1, b1, q2), (q2, b1, q3), (q3, e, q3)]
    G1 = fsa(X, Sigma, T, X0, Xm, table, name='$G_1$')
    draw(G1)
-   draw(G1, 'figurecolor')
